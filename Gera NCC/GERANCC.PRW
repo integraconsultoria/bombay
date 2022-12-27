@@ -3,12 +3,12 @@
 
 USER FUNCTION GERANCC()
 
-    If MSGYESNO( "Confirma a GERAÇÃO ", "NCC")
+    If MSGYESNO( "Confirma a GERAï¿½ï¿½O ", "NCC")
         Processa( { || FuncPROC() }, "Gerando NCC, AGUARDE ... " )
     Endif
 
 Return
-
+//comentario
 STATIC FUNCTION FuncPROC()
 
 LOCAL cQry  , nX
@@ -59,17 +59,17 @@ LOCAL cAliasSF2 := GetNextAlias()
                 AADD( aFin040, {"E1_VLRREAL"	,	ROUND( (cAliasSF2)->F2_VALFAT, TAMSX3("E1_VALOR")[2] ) ,Nil})					
                 AADD( aFin040, {"E1_VENCTO"		,	StoD( (cAliasSF2)->F2_EMISSAO ),Nil})
 
-                //Assinatura de variáveis que controlarão a inserção automática da RA;
+                //Assinatura de variï¿½veis que controlarï¿½o a inserï¿½ï¿½o automï¿½tica da RA;
                 lMsErroAuto := .F.
                 lMsHelpAuto	:= .T.
                 lAutoErrNoFile := .T.         
                 
 
-                //Invocando rotina automática para criação ;
+                //Invocando rotina automï¿½tica para criaï¿½ï¿½o ;
                 MSExecAuto({|x,y| Fina040(x,y)}, aFin040, 3)
                         
 
-                //Quando houver erros, exibí-los em tela;    
+                //Quando houver erros, exibï¿½-los em tela;    
                 If lMsErroAuto
                     aErro := GetAutoGRLog()
                     cErro := ''
