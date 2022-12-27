@@ -7,7 +7,7 @@
 #INCLUDE "ApWizard.ch"
 
 Static cNomeArq		:= "RELATORIO_FINANCEIRO"
-
+//Pedido Silmara
 /*/{protheus.doc} MCRFIN010A
 ******************************************************************************************* 
 @author: Marcelo Celi Marques
@@ -37,18 +37,18 @@ User Function MCRFIN010A()
 
 	cNomeArq := Alltrim(cNomeArq)+"-"+Upper(cNomeEmpr)
 
-	Private aMeses		:= {"Janeiro","Fevereiro","Março","Abril","Maio","Junho","Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"}
+	Private aMeses		:= {"Janeiro","Fevereiro","Marï¿½o","Abril","Maio","Junho","Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"}
 	Private aRetParam 	:= {}
-	Private aTpData		:= {"Data da Baixa","Data da Compensação","Fluxo futuro"}
-	Private aTpConcil	:= {"Conciliado","Não Conciliado","Todos"}
+	Private aTpData		:= {"Data da Baixa","Data da Compensaï¿½ï¿½o","Fluxo futuro"}
+	Private aTpConcil	:= {"Conciliado","Nï¿½o Conciliado","Todos"}
 
 	aRetParam := {cFilAnt,cFilAnt,Year(dDatabase),Month(dDatabase),Space(150),Replicate(" ",Tamsx3("E5_BANCO")[01]),Replicate(" ",Tamsx3("E5_AGENCIA")[01]),Replicate(" ",Tamsx3("E5_CONTA")[01]),Replicate("Z",Tamsx3("E5_BANCO")[01]),Replicate("Z",Tamsx3("E5_AGENCIA")[01]),Replicate("Z",Tamsx3("E5_CONTA")[01]),2,3,.F.,.T.,.T.,.T.,.F.,.T.}
 
 	aAdd(aParambox,{1,"Filial de" 										,aRetParam[01],"@!","","SM0" 	,".F.",20 ,.F.	})
 	aAdd(aParambox,{1,"Filial ate" 										,aRetParam[02],"@!","","SM0" 	,".F.",20 ,.F.	})
 	aAdd(aParambox,{1,"Ano" 											,aRetParam[03],"@!","","" 		,".T.",30 ,.T.	})
-	aAdd(aParambox,{2,"Mês" 											,aRetParam[04],aMeses,100,".T.",.T.})
-	aAdd(aParambox,{1,"Pasta Gravação"									,aRetParam[05],"@!","","MCPFN"  ,".T.",180,.T.	})
+	aAdd(aParambox,{2,"Mï¿½s" 											,aRetParam[04],aMeses,100,".T.",.T.})
+	aAdd(aParambox,{1,"Pasta Gravaï¿½ï¿½o"									,aRetParam[05],"@!","","MCPFN"  ,".T.",180,.T.	})
 	aAdd(aParambox,{1,"Banco de" 										,aRetParam[06],"@!","","SA6" 	,".F.",30 ,.F.	})
 	aAdd(aParambox,{1,"Agencia de" 										,aRetParam[07],"@!","","" 		,".F.",50 ,.F.	})
 	aAdd(aParambox,{1,"Conta de" 										,aRetParam[08],"@!","","" 		,".F.",70 ,.F.	})
@@ -65,16 +65,16 @@ User Function MCRFIN010A()
 	aAdd(aParambox,{5,"Extrair Juros" 									,aRetParam[19],190,".T.",.F.})
 
 	DEFINE WIZARD oWizard ;
-		TITLE "Relatórios Gerenciais" ;
-		HEADER "Visões Financeiras" ;
+		TITLE "Relatï¿½rios Gerenciais" ;
+		HEADER "Visï¿½es Financeiras" ;
 		MESSAGE "Avance para Continuar" 		;
-		TEXT "Este procedimento deverá gerar em Planilhas Eletrônicas no formato Excel, os relatórios Gerenciais nas Visões Financeiras." PANEL;
+		TEXT "Este procedimento deverï¿½ gerar em Planilhas Eletrï¿½nicas no formato Excel, os relatï¿½rios Gerenciais nas Visï¿½es Financeiras." PANEL;
 	NEXT {|| .T. } ;
 	FINISH {|| .T. };
 
 CREATE PANEL oWizard ;
-	HEADER "Visões Financeiras" ;
-	MESSAGE "Informe os parametros para a Extração do Relatório" PANEL;
+	HEADER "Visï¿½es Financeiras" ;
+	MESSAGE "Informe os parametros para a Extraï¿½ï¿½o do Relatï¿½rio" PANEL;
 	NEXT {|| 	lOK := ConfProcess() } ;
 	FINISH {|| 	lOK := ConfProcess() } ;
 	PANEL
@@ -83,7 +83,7 @@ Parambox(aParambox,"Parametros de Geracao"	,@aRetParam,,,.T.,,,oWizard:GetPanel(
 ACTIVATE WIZARD oWizard CENTERED
 
 If lOk
-	Processa({|x| ProcRelato(.F.) },"Processando","Aguarde, Extraindo Relatório Gerencial",.F.)
+	Processa({|x| ProcRelato(.F.) },"Processando","Aguarde, Extraindo Relatï¿½rio Gerencial",.F.)
 EndIf
 
 Return
@@ -106,7 +106,7 @@ Static Function ConfProcess()
 	Local cPath	 := ""
 
 	If Empty(cPasta)
-		MsgAlert("A Pasta destino para a gravação das Planilhas Eletrônicas não é válida ou você não tem permissão para gravar nesse local."+CRLF+"Selecione uma Pasta válida para continuar.")
+		MsgAlert("A Pasta destino para a gravaï¿½ï¿½o das Planilhas Eletrï¿½nicas nï¿½o ï¿½ vï¿½lida ou vocï¿½ nï¿½o tem permissï¿½o para gravar nesse local."+CRLF+"Selecione uma Pasta vï¿½lida para continuar.")
 		lRet := .F.
 	Else
 		cPasta += If(Right(cPasta,1)=="\","","\")
@@ -114,7 +114,7 @@ Static Function ConfProcess()
 
 		nHdl := fCreate(cPath)
 		If nHdl <= 0
-			MsgAlert("A Pasta destino para a gravação das Planilhas Eletrônicas não é válida ou você não tem permissão para gravar nesse local."+CRLF+"Selecione uma Pasta válida para continuar.")
+			MsgAlert("A Pasta destino para a gravaï¿½ï¿½o das Planilhas Eletrï¿½nicas nï¿½o ï¿½ vï¿½lida ou vocï¿½ nï¿½o tem permissï¿½o para gravar nesse local."+CRLF+"Selecione uma Pasta vï¿½lida para continuar.")
 			lRet := .F.
 		Else
 			fClose(nHdl)
@@ -123,10 +123,10 @@ Static Function ConfProcess()
 	EndIf
 
 	If lRet .And. aRetParam[03] < 1980
-		MsgAlert("Ano inválido"+CRLF+"Favor informar um ano superior a 1980.")
+		MsgAlert("Ano invï¿½lido"+CRLF+"Favor informar um ano superior a 1980.")
 		lRet := .F.
 	ElseIf lRet .And. aRetParam[03] > Year(Date())
-		MsgAlert("Ano inválido"+CRLF+"Favor informar um ano até a data atual")
+		MsgAlert("Ano invï¿½lido"+CRLF+"Favor informar um ano atï¿½ a data atual")
 		lRet := .F.
 	EndIf
 
@@ -143,7 +143,7 @@ Static Function ConfProcess()
 	EndIf
 
 	If lRet
-		lRet := MsgYesNo("Confirma a Geração da Planilha Eletrônica de Visões Gerenciais Financeiras?")
+		lRet := MsgYesNo("Confirma a Geraï¿½ï¿½o da Planilha Eletrï¿½nica de Visï¿½es Gerenciais Financeiras?")
 	EndIf
 
 Return lRet
@@ -189,7 +189,7 @@ Static Function ProcRelato(lJob)
 
 	If !lJob
 		ProcRegua(0)
-		IncProc("Gerando o Relatório...")
+		IncProc("Gerando o Relatï¿½rio...")
 	EndIf
 	aPlanilha := {}
 	aAdd(aPlanilha,GetPlanilha(dInicio,dFim,lJob))
@@ -908,7 +908,7 @@ Static Function GetaHeader(nTipo,aCabec,aRodape,dDataDe,dDataAte)
 		aAdd(aCabec,{Day(dDataAte)+2,"","@E!",200,"C","s01"})
 
 		aAdd(aHeader,{"Codigo"	 ,"CPO1", "@E!",060,"C",'"s02"',"s01","N"})
-		aAdd(aHeader,{"Descrição","CPO2", "@E!",140,"C",'"s02"',"s01","N"})
+		aAdd(aHeader,{"Descriï¿½ï¿½o","CPO2", "@E!",140,"C",'"s02"',"s01","N"})
 		nCpo := 3
 		For dX := dDataDe to dDataAte
 			aAdd(aHeader,{"","CPO"+Alltrim(Str(nCpo)), "@E!",080,"N",'"s02"',"s01","N"})
@@ -931,7 +931,7 @@ Static Function GetaHeader(nTipo,aCabec,aRodape,dDataDe,dDataAte)
 
 
 		aAdd(aHeader,{"Codigo"	 ,"CPO1", "@E!",060,"C",'"s02"',"s01","N"})
-		aAdd(aHeader,{"Descrição","CPO1", "@E!",140,"C",'"s02"',"s01","N"})
+		aAdd(aHeader,{"Descriï¿½ï¿½o","CPO1", "@E!",140,"C",'"s02"',"s01","N"})
 		nCpo := 3
 		For dX := dDataDe to dDataAte
 			aAdd(aHeader,{"","CPO"+Alltrim(Str(nCpo)), "@E!",080,"N",'"s02"',"s01","N"})
@@ -1505,7 +1505,7 @@ Retorna a Pasta.
 User Function McGetPFN10()
 	Local cPasta 	:= ""
 
-	cPasta := Alltrim( cGetFile("Diretorios", "Diretorio para a Gravação da Planilha",,,.T.,nOR( GETF_LOCALHARD , GETF_RETDIRECTORY , GETF_NETWORKDRIVE ),.F. ) )
+	cPasta := Alltrim( cGetFile("Diretorios", "Diretorio para a Gravaï¿½ï¿½o da Planilha",,,.T.,nOR( GETF_LOCALHARD , GETF_RETDIRECTORY , GETF_NETWORKDRIVE ),.F. ) )
 	aRetParam[05]  := cPasta
 
 Return
