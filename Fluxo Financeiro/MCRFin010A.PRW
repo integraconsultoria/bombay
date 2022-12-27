@@ -7,7 +7,7 @@
 #INCLUDE "ApWizard.ch"
 
 Static cNomeArq		:= "RELATORIO_FINANCEIRO"
-//Pedido Silmara
+
 /*/{protheus.doc} MCRFIN010A
 ******************************************************************************************* 
 @author: Marcelo Celi Marques
