@@ -8,8 +8,7 @@ USER FUNCTION GERANCC()
     Endif
 
 Return
-//comentario
-//comentario 2
+
 STATIC FUNCTION FuncPROC()
 
 LOCAL cQry  , nX
