@@ -1688,14 +1688,17 @@ If aRetMsgPara[03]
 	//nValorLiq	:= u_MCVlrBolet()[01] - nDesconto
 	
     cMsgInstruc += "APOS O VENCIMENTO COBRAR MULTA DE "   +Transform(nMulta,"@E 999,999") + "% E JUROS DE "+Transform(nJuros,"@E 999.999")+"% AO DIA"+CRLF
-	cMsgInstruc += "PROTESTAR APOS 5 DIAS CORRIDOS DO VENCIMENTO / VALOR ORIGINAL R$ "+ Alltrim(Transform(nValorOrig,"@E 9,999,999,999.99"))+CRLF
 	
+	//->>Marcelo Celi - 27/10/2022
+	//cMsgInstruc += "PROTESTAR APOS 5 DIAS CORRIDOS DO VENCIMENTO / VALOR ORIGINAL R$ "+ Alltrim(Transform(nValorOrig,"@E 9,999,999,999.99"))+CRLF	
+	cMsgInstruc += "PROTESTAR APOS 6 DIAS CORRIDOS DO VENCIMENTO"+CRLF
+
     //->>Marcelo Celi - 14/10/2022
     //cMsgInstruc += "DESCONTOS ("+Transform(SE1->E1_DESCFIN,"@E 99.99")+"%) (-) R$ "+Alltrim(Transform((u_MCVlrBolet()[01] * (SE1->E1_DESCFIN/100)),"@E 9,999,999,999.99"))+CRLF
-    cMsgInstruc += "DESCONTOS ("+Transform(SE1->E1_DESCFIN,"@E 99.99")+"%) (-) R$ "+Alltrim(Transform(u_MCVlrBolet()[04],"@E 9,999,999,999.99"))+CRLF
+    //cMsgInstruc += "DESCONTOS ("+Transform(SE1->E1_DESCFIN,"@E 99.99")+"%) (-) R$ "+Alltrim(Transform(u_MCVlrBolet()[04],"@E 9,999,999,999.99"))+CRLF
 
 
-	cMsgInstruc += "(+) ACRESCIMOS R$ "+Transform(SE1->E1_ACRESC,"@E 9,999,999.99")+"%) (=) VALOR LIQUIDO R$ "+Alltrim(Transform(nValorLiq,"@E 9,999,999,999.99"))
+	//cMsgInstruc += "(+) ACRESCIMOS R$ "+Transform(SE1->E1_ACRESC,"@E 9,999,999.99")+"%) (=) VALOR LIQUIDO R$ "+Alltrim(Transform(nValorLiq,"@E 9,999,999,999.99"))
 	cMsgInstruc += CRLF
 EndIf
 cMsgInstruc += cMsgTxBolet
