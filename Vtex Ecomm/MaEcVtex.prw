@@ -1320,6 +1320,9 @@ If Inicializar(lJob)
                             cNomeCli := Alltrim(cNomeCli)
                         EndIf
 
+                        //->>Marcelo Celi - 22/11/2022
+                        cNomeCli := Alltrim(Upper(FwNoAccent(DecodeUtf8(cNomeCli))))
+
                         //->> Marcelo Celi - 03/08/2022
                         //->> Formatação do telefone do Cliente
                         //->> Pessoa Fisica
@@ -1378,12 +1381,20 @@ If Inicializar(lJob)
                         aPedidos[__nX,11] := cInscEst
 
                         //->> Ajuste da formatação dos dados removendo caracteres especiais, acentuação incorreta e transformando em caixa alta
-                        aPedidos[__nX][01] := If(Valtype(aPedidos[__nX][01])=="C",aPedidos[__nX][01],"")
+                        
+                        //->>Marcelo Celi - 22/11/2022
+                        //aPedidos[__nX][01] := If(Valtype(aPedidos[__nX][01])=="C",aPedidos[__nX][01],"")
+                        aPedidos[__nX][01] := If(Valtype(aPedidos[__nX][01])=="C",Alltrim(Upper(FwNoAccent(DecodeUtf8(aPedidos[__nX][01])))),"")
+
                         aPedidos[__nX][02] := Alltrim(Upper(FwNoAccent(DecodeUtf8(aPedidos[__nX][02]))))
                         aPedidos[__nX][03] := Alltrim(Upper(FwNoAccent(DecodeUtf8(aPedidos[__nX][03]))))
                         aPedidos[__nX][04] := If(Valtype(aPedidos[__nX][04])=="N",aPedidos[__nX][04],0)
                         aPedidos[__nX][05] := Alltrim(Upper(FwNoAccent(DecodeUtf8(aPedidos[__nX][05]))))
-                        aPedidos[__nX][06] := aPedidos[__nX][06]
+                        
+                        //->>Marcelo Celi - 22/11/2022
+                        //aPedidos[__nX][06] := aPedidos[__nX][06]
+                        aPedidos[__nX][06] := Alltrim(Upper(FwNoAccent(DecodeUtf8(aPedidos[__nX][06]))))
+                        
                         aPedidos[__nX][07] := Alltrim(Upper(FwNoAccent(DecodeUtf8(aPedidos[__nX][07]))))
                         aPedidos[__nX][08] := Alltrim(Upper(FwNoAccent(DecodeUtf8(aPedidos[__nX][08]))))
                         aPedidos[__nX][09] := Alltrim(Upper(FwNoAccent(DecodeUtf8(aPedidos[__nX][09]))))
@@ -2020,7 +2031,7 @@ Desce as Vendas do Vtex em Job
 @type function: Usuario
 *******************************************************************************************
 /*/
-User Function MaVdaVtex(cEmp,cFil,dDataDe,dDataAte)
+User Function MaVdaVtex(cEmp,cFil,dDataDe,dDataAte,cNickName)
 Local aArea     := {}
 Local _cFilAnt  := ""
 Local cCodigo   := ""
@@ -2029,6 +2040,7 @@ Default cEmp        := _cEmp
 Default cFil        := _cFil
 Default dDataDe     := Stod("")
 Default dDataAte    := Stod("")
+Default cNickName   := ""
 
 If !Empty(cNickName)    
     lUsarRot := LockByName(cNickName,.F.,.F.)
