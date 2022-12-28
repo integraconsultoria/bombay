@@ -5,19 +5,20 @@
 #INCLUDE "COLORS.CH"
 #INCLUDE "FONT.CH"  
 /*
-ÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜÜ
-±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
-±±ÉÍÍÍÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍËÍÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍËÍÍÍÍÍÍÑÍÍÍÍÍÍÍÍÍÍÍÍÍ»±±
-±±ºPrograma  ³ANALISE   ºAutor  ³Reinaldo Dias       º Data ³  19/08/2005 º±±
-±±ÌÍÍÍÍÍÍÍÍÍÍØÍÍÍÍÍÍÍÍÍÍÊÍÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÊÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍ¹±±
-±±ºDesc.     ³ Rotina analisar movimentacao e saldo em estoque.           º±±
-±±º          ³ Controle de lote e localizacao ativo.                      º±±
-±±ÌÍÍÍÍÍÍÍÍÍÍØÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ¹±±
-±±ºUso       ³ AP8                                                        º±±
-±±ÈÍÍÍÍÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ¼±±
-±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±±
-ßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßßß
+ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Í»ï¿½ï¿½
+ï¿½ï¿½ï¿½Programa  ï¿½ANALISE   ï¿½Autor  ï¿½Reinaldo Dias       ï¿½ Data ï¿½  19/08/2005 ï¿½ï¿½ï¿½
+ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Í¹ï¿½ï¿½
+ï¿½ï¿½ï¿½Desc.     ï¿½ Rotina analisar movimentacao e saldo em estoque.           ï¿½ï¿½ï¿½
+ï¿½ï¿½ï¿½          ï¿½ Controle de lote e localizacao ativo.                      ï¿½ï¿½ï¿½
+ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Í¹ï¿½ï¿½
+ï¿½ï¿½ï¿½Uso       ï¿½ AP8                                                        ï¿½ï¿½ï¿½
+ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Í¼ï¿½ï¿½
+ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 */
+//teste 
 User Function ANALISE()            
 Local oDlgMain    
 Local aArea          := GetArea()
@@ -150,7 +151,7 @@ DBSelectArea("SB1")
 
 @ 049,095 SAY "Lote"                                    SIZE 040,10 PIXEL OF oDlgMain FONT oBold 
 @ 045,114 MSGET oVar   VAR cCrlLot   Picture "@!"       SIZE 025,10 PIXEL OF oDlgMain When .F.
-@ 049,150 SAY "Localização"                             SIZE 040,10 PIXEL OF oDlgMain FONT oBold 
+@ 049,150 SAY "Localizaï¿½ï¿½o"                             SIZE 040,10 PIXEL OF oDlgMain FONT oBold 
 @ 045,190 MSGET oVar   VAR cCrlEnd   Picture "@!"       SIZE 015,10 PIXEL OF oDlgMain When .F.
 @ 049,210 SAY "Zona"                                    SIZE 040,10 PIXEL OF oDlgMain FONT oBold 
 @ 045,240 MSGET oVar   VAR cZona     Picture "@!"       SIZE 041,10 PIXEL OF oDlgMain When .F.
@@ -164,7 +165,7 @@ DBSelectArea("SB1")
 @ 074,020 SAY "SBK"                          SIZE 015,10 PIXEL OF oFolder:aDialogs[1] FONT oBold 
 @ 070,035 MSGET oSBK  VAR nSBK Picture cPict SIZE 050,10 PIXEL OF oFolder:aDialogs[1] When .F.
 
-@ 022,115 TO 087, 195 PROMPT "Saldo Movimentação"        PIXEL OF oFolder:aDialogs[1]
+@ 022,115 TO 087, 195 PROMPT "Saldo Movimentaï¿½ï¿½o"        PIXEL OF oFolder:aDialogs[1]
 @ 034,120 SAY "KAR"                          SIZE 015,10 PIXEL OF oFolder:aDialogs[1] FONT oBold 
 @ 030,135 MSGET oKAR  VAR nKAR Picture cPict SIZE 050,10 PIXEL OF oFolder:aDialogs[1] When .F. 
 @ 054,120 SAY "SD5"                          SIZE 015,10 PIXEL OF oFolder:aDialogs[1] FONT oBold 
@@ -190,7 +191,7 @@ DBSelectArea("SB1")
 @ 154,320 SAY cMensSBF                       SIZE 120,10 PIXEL OF oFolder:aDialogs[1] FONT oBold  COLOR CLR_HRED
 
 @ 220,002 SAY "Sugestoes e melhorias p/ e-mail: rdias@microsiga.com.br"  SIZE 200,10 PIXEL OF oFolder:aDialogs[1] FONT oBold  COLOR CLR_HBLUE
-@ 220,435 SAY "Versão 5.2"                                               SIZE 200,10 PIXEL OF oFolder:aDialogs[1] FONT oBold  COLOR CLR_HBLUE
+@ 220,435 SAY "Versï¿½o 5.2"                                               SIZE 200,10 PIXEL OF oFolder:aDialogs[1] FONT oBold  COLOR CLR_HBLUE
 
 @ 102,015 TO 167, 095 PROMPT "Saldo a Classificar"         PIXEL OF oFolder:aDialogs[1] 
 @ 114,020 SAY "SB2"                             SIZE 015,10 PIXEL OF oFolder:aDialogs[1] FONT oBold 
@@ -288,7 +289,7 @@ cBFxDB := "BF=>DB"
 @ 001,165 BUTTON "Excluir"         SIZE 30,10 ACTION (fAjustSBF("BF_E"))                           PIXEL OF oFolder:aDialogs[3] When IF(nOpSBF=1,.T.,.F.)
 @ 001,420 BUTTON "Pesquisar"       SIZE 30,10 ACTION (fPesquisa("SBF",oDetSBF))                    PIXEL OF oFolder:aDialogs[3]
 @ 010,005 LISTBOX oDetSBF Var cModelo FIELDS HEADER; 
-     "Localização",;
+     "Localizaï¿½ï¿½o",;
 	 "Lote" ,;
 	 "Quantidade" ,;
 	 "Status" ,;
@@ -318,7 +319,7 @@ cBFxDB := "BF=>DB"
 	 "Origem" ,;
      "Data" ,;
 	 "TM" ,;
-	 "Localização" ,;
+	 "Localizaï¿½ï¿½o" ,;
      "Lote" ,;
 	 "Quantidade" ,;	
 	 "Saldo" ,;
@@ -496,8 +497,8 @@ cBFxDB := "BF=>DB"
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Kardex - Lote
 @ 003,005 SAY "Saldo Final : "+Trans(nSldKarLote,cPict) SIZE 200,50                                                PIXEL OF oFolder:aDialogs[10] FONT oBold
-@ 001,100 BUTTON "Pesquisa Diferença - Próxima"         SIZE 080,10 ACTION (fPesqDifLote("Prox"))                  PIXEL OF oFolder:aDialogs[10]
-@ 001,200 BUTTON "Pesquisa Diferença - Anterior"        SIZE 080,10 ACTION (fPesqDifLote("Ante"))                  PIXEL OF oFolder:aDialogs[10]
+@ 001,100 BUTTON "Pesquisa Diferenï¿½a - Prï¿½xima"         SIZE 080,10 ACTION (fPesqDifLote("Prox"))                  PIXEL OF oFolder:aDialogs[10]
+@ 001,200 BUTTON "Pesquisa Diferenï¿½a - Anterior"        SIZE 080,10 ACTION (fPesqDifLote("Ante"))                  PIXEL OF oFolder:aDialogs[10]
 @ 001,420 BUTTON "Processar"                            SIZE 030,10 ACTION (Processa({||fDetaSB8(),fKardLote()}))  PIXEL OF oFolder:aDialogs[10]
 @ 010,005 LISTBOX oKarLote Var cModelo FIELDS HEADER; 
      "Origem" ,;
@@ -519,15 +520,15 @@ cBFxDB := "BF=>DB"
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Kardex - Localizacao
 @ 003,005 SAY "Saldo Final : "+Trans(nSldKarEnde,cPict) SIZE 200,50                                              PIXEL OF oFolder:aDialogs[11] FONT oBold
-@ 001,100 BUTTON "Pesquisa Diferença - Próxima"         SIZE 080,10 ACTION (fPesqDifEnde("Prox"))                PIXEL OF oFolder:aDialogs[11]
-@ 001,200 BUTTON "Pesquisa Diferença - Anterior"        SIZE 080,10 ACTION (fPesqDifEnde("Ante"))                PIXEL OF oFolder:aDialogs[11]
+@ 001,100 BUTTON "Pesquisa Diferenï¿½a - Prï¿½xima"         SIZE 080,10 ACTION (fPesqDifEnde("Prox"))                PIXEL OF oFolder:aDialogs[11]
+@ 001,200 BUTTON "Pesquisa Diferenï¿½a - Anterior"        SIZE 080,10 ACTION (fPesqDifEnde("Ante"))                PIXEL OF oFolder:aDialogs[11]
 @ 001,420 BUTTON "Processar"                            SIZE 030,10 ACTION (Processa({||fDetaSBF(),fKardEnde()})) PIXEL OF oFolder:aDialogs[11]
 @ 010,005 LISTBOX oKarEnde Var cModelo FIELDS HEADER; 
      "Origem" ,;
 	 "Data" ,;
 	 "TM" ,;
 	 "Documento" ,;
-	 "Localização" ,;		
+	 "Localizaï¿½ï¿½o" ,;		
 	 "Lote" ,;	
 	 "Quantidade" ,;   			
 	 "Saldo" ,;   
@@ -540,7 +541,7 @@ cBFxDB := "BF=>DB"
 // FOLDER 12
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Documento
-@ 001,040 BUTTON "Somente Movimento Com Diferença"     SIZE 100,10 ACTION (Processa({||fSoDocto()})) PIXEL OF oFolder:aDialogs[12]
+@ 001,040 BUTTON "Somente Movimento Com Diferenï¿½a"     SIZE 100,10 ACTION (Processa({||fSoDocto()})) PIXEL OF oFolder:aDialogs[12]
 @ 001,375 BUTTON "Processar"        SIZE 30,10 ACTION (Processa({||fAnaliseDoc(),fDetaSDA()}))       PIXEL OF oFolder:aDialogs[12]
 @ 001,420 BUTTON "Pesquisar"        SIZE 30,10 ACTION (fPesquisa("DOCTO",oDocto))                    PIXEL OF oFolder:aDialogs[12]
 @ 010,005 LISTBOX oDocto Var cModelo FIELDS HEADER; 
@@ -558,9 +559,9 @@ cBFxDB := "BF=>DB"
      "SDB_S" ,;    
 	 "Origem" ,;
 	 "Status" ,;  
-	 "Serviço" ,;
-	 "Status Serviço" ,;
-     "Serviço Pendente"  SIZE 459,215 ON DBLCLICK () PIXEL OF oFolder:aDialogs[12]
+	 "Serviï¿½o" ,;
+	 "Status Serviï¿½o" ,;
+     "Serviï¿½o Pendente"  SIZE 459,215 ON DBLCLICK () PIXEL OF oFolder:aDialogs[12]
 	 oDocto:SetArray(aDocto)
      oDocto:bLine:={ ||{aDocto[oDocto:nAT,1],aDocto[oDocto:nAT,2],aDocto[oDocto:nAT,3],aDocto[oDocto:nAT,4],aDocto[oDocto:nAT,5],aDocto[oDocto:nAT,6],aDocto[oDocto:nAT,7],aDocto[oDocto:nAT,8],aDocto[oDocto:nAT,9],aDocto[oDocto:nAT,10],aDocto[oDocto:nAT,11],aDocto[oDocto:nAT,12],aDocto[oDocto:nAT,13],aDocto[oDocto:nAT,14],aDocto[oDocto:nAT,15],aDocto[oDocto:nAT,16],aDocto[oDocto:nAT,17]}}
      oDocto:Refresh()
@@ -569,7 +570,7 @@ cBFxDB := "BF=>DB"
 // FOLDER 13
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // NumSeq
-@ 001,040 BUTTON "Somente Movimento Com Diferença"     SIZE 100,10 ACTION (Processa({||fSoNumSeq()})) PIXEL OF oFolder:aDialogs[13]
+@ 001,040 BUTTON "Somente Movimento Com Diferenï¿½a"     SIZE 100,10 ACTION (Processa({||fSoNumSeq()})) PIXEL OF oFolder:aDialogs[13]
 @ 001,180 BUTTON "Incluir SD5"     SIZE 30,10 ACTION (fAjustSD5("D5_I","13"))                         PIXEL OF oFolder:aDialogs[13]
 @ 001,240 BUTTON "Incluir SDB"     SIZE 30,10 ACTION (fAjustSDB("DB_I","13"))                         PIXEL OF oFolder:aDialogs[13]
 @ 001,300 BUTTON "Alterar"         SIZE 30,10 ACTION (fAjustD5DB("D5DB_A"))                           PIXEL OF oFolder:aDialogs[13]
@@ -592,9 +593,9 @@ cBFxDB := "BF=>DB"
 	 "Serie" ,;  
 	 "Clie.Forn" ,;  
 	 "Loja" ,;  
-	 "Serviço" ,;
-	 "Status Serviço" ,;
-     "Serviço Pendente"  SIZE 459,215 ON DBLCLICK () PIXEL OF oFolder:aDialogs[13]
+	 "Serviï¿½o" ,;
+	 "Status Serviï¿½o" ,;
+     "Serviï¿½o Pendente"  SIZE 459,215 ON DBLCLICK () PIXEL OF oFolder:aDialogs[13]
 	oNumSeq:SetArray(aNumSeq)
 	oNumSeq:bLine:={ ||{aNumSeq[oNumSeq:nAT,1],aNumSeq[oNumSeq:nAT,2],aNumSeq[oNumSeq:nAT,3],aNumSeq[oNumSeq:nAT,4],aNumSeq[oNumSeq:nAT,5],aNumSeq[oNumSeq:nAT,6],aNumSeq[oNumSeq:nAT,7],aNumSeq[oNumSeq:nAT,8],aNumSeq[oNumSeq:nAT,9],aNumSeq[oNumSeq:nAT,10],aNumSeq[oNumSeq:nAT,11],aNumSeq[oNumSeq:nAT,12],aNumSeq[oNumSeq:nAT,13],aNumSeq[oNumSeq:nAT,14],aNumSeq[oNumSeq:nAT,15],aNumSeq[oNumSeq:nAT,16],aNumSeq[oNumSeq:nAT,17],aNumSeq[oNumSeq:nAT,18],aNumSeq[oNumSeq:nAT,19]}}
     oNumSeq:Refresh()
@@ -788,13 +789,13 @@ Local aArea  := GetArea()
 DBSelectArea("SB1")
 DBSetOrder(1)
 IF !Empty(cProduto) .AND. !DBSeek(xFilial("SB1")+cProduto)
-   MsgStop("Produto não cadastrado !!!")
+   MsgStop("Produto nï¿½o cadastrado !!!")
    Return (.F.)
 Endif
 
 cDescr   := SB1->B1_DESC
-cCrlLot  := If(SB1->B1_RASTRO ="L","Lote",If(SB1->B1_RASTRO ="S","Sub-Lote","Não"))
-cCrlEnd  := If(SB1->B1_LOCALIZ="S","Sim","Não")
+cCrlLot  := If(SB1->B1_RASTRO ="L","Lote",If(SB1->B1_RASTRO ="S","Sub-Lote","Nï¿½o"))
+cCrlEnd  := If(SB1->B1_LOCALIZ="S","Sim","Nï¿½o")
 cLocal   := IF(Empty(cLocal),SB1->B1_LOCPAD,cLocal)
 c1UM     := SB1->B1_UM
 c2UM     := SB1->B1_SEGUM
@@ -1737,7 +1738,7 @@ For I:= 1 To Len(aKarLote)
           nSalSB8 += aDetSB8[nPos,5]
        Endif   
        IF nSaldo <> nSalSB8
-          aKarLote[I,10] := "Saldo SB8:  "+Alltrim(Str(nSalSB8))+"     Diferença: "+Alltrim(Str(ABS(nSalSB8-nSaldo)))
+          aKarLote[I,10] := "Saldo SB8:  "+Alltrim(Str(nSalSB8))+"     Diferenï¿½a: "+Alltrim(Str(ABS(nSalSB8-nSaldo)))
           cMensSB8       := "SB8 diferente do Kardex por Lote"
           cMensagem      := "DIVERGENCIA"
        Endif
@@ -1826,8 +1827,8 @@ For I:= 1 To Len(aKarEnde)
           nSalSBF += aDetSBF[nPos,3]
        Endif   
        IF nSaldo <> nSalSBF
-          aKarEnde[I,9] := "Saldo SBF:  "+Alltrim(Str(nSalSBF))+"     Diferença: "+Alltrim(Str(ABS(nSalSBF-nSaldo)))
-          cMensSBF      := "SBF diferente do Kardex por Endereço"
+          aKarEnde[I,9] := "Saldo SBF:  "+Alltrim(Str(nSalSBF))+"     Diferenï¿½a: "+Alltrim(Str(ABS(nSalSBF-nSaldo)))
+          cMensSBF      := "SBF diferente do Kardex por Endereï¿½o"
           cMensagem     := "DIVERGENCIA"
        Endif
   EndCase
@@ -2448,7 +2449,7 @@ DBSelectArea("SB1")
 DEFINE MSDIALOG oDlgSBF TITLE "Ajuste no SBF"  OF oDlgSBF PIXEL FROM 010,010 TO 200,265 
 DEFINE FONT oBold   NAME "Arial" SIZE 0, -12 BOLD
 
-@ 009,005 SAY "Endereço"                                SIZE 040,10 PIXEL OF oDlgSBF FONT oBold  
+@ 009,005 SAY "Endereï¿½o"                                SIZE 040,10 PIXEL OF oDlgSBF FONT oBold  
 @ 005,043 MSGET oVar   VAR cEndereco Picture "@!"       SIZE 040,10 PIXEL OF oDlgSBF When lVisEndereco
 @ 024,005 SAY "Lote"                                    SIZE 040,10 PIXEL OF oDlgSBF FONT oBold 
 @ 020,043 MSGET oVar   VAR cLoteCtl Picture "@!"        SIZE 040,10 PIXEL OF oDlgSBF When lVisLote
@@ -2592,7 +2593,7 @@ DEFINE FONT oBold   NAME "Arial" SIZE 0, -12 BOLD
 @ 080,043 MSGET oVar   VAR cLoteCtl Picture "@!"        SIZE 040,10 PIXEL OF oDlgSDB When lVisLote
 @ 099,005 SAY "Num.Seq."                                SIZE 040,10 PIXEL OF oDlgSDB FONT oBold 
 @ 095,043 MSGET oVar   VAR cNumSeq  Picture "@!"        SIZE 040,10 PIXEL OF oDlgSDB When lVisNumSeq
-@ 114,005 SAY "Localização"                             SIZE 040,10 PIXEL OF oDlgSDB FONT oBold 
+@ 114,005 SAY "Localizaï¿½ï¿½o"                             SIZE 040,10 PIXEL OF oDlgSDB FONT oBold 
 @ 110,043 MSGET oVar   VAR cLocaliz Picture "@!"        SIZE 040,10 PIXEL OF oDlgSDB When lVisLocaliz
 @ 129,005 SAY "Quantidade"                              SIZE 040,10 PIXEL OF oDlgSDB FONT oBold 
 @ 125,043 MSGET oVar   VAR nQuant   Picture cPictDB     SIZE 050,10 PIXEL OF oDlgSDB When lVisQuant Valid(nQuant >= 0)
@@ -2725,7 +2726,7 @@ DBSelectArea("SB1")
 DEFINE MSDIALOG oDlgSBK TITLE "Ajuste no SBK"  OF oDlgSBK PIXEL FROM 010,010 TO 200,265 
 DEFINE FONT oBold   NAME "Arial" SIZE 0, -12 BOLD
 
-@ 009,005 SAY "Endereço"                                SIZE 040,10 PIXEL OF oDlgSBK FONT oBold  
+@ 009,005 SAY "Endereï¿½o"                                SIZE 040,10 PIXEL OF oDlgSBK FONT oBold  
 @ 005,043 MSGET oVar   VAR cEndereco Picture "@!"       SIZE 040,10 PIXEL OF oDlgSBK 
 @ 024,005 SAY "Lote"                                    SIZE 040,10 PIXEL OF oDlgSBK FONT oBold 
 @ 020,043 MSGET oVar   VAR cLoteCtl Picture "@!"        SIZE 040,10 PIXEL OF oDlgSBK 
@@ -2988,7 +2989,7 @@ Do Case
      DBSelectArea("SBJ")     
      DBSetOrder(1) // BJ_FILIAL+BJ_COD+BJ_LOCAL+BJ_LOTECTL+BJ_NUMLOTE+DTOS(BJ_DATA)
      IF DBSeek(xFilial("SBJ")+cProduto+cLocal+cLoteCtl+cNumLote+DTOS(dUltFech))
-        MsgStop("Movimento já existe !!!")
+        MsgStop("Movimento jï¿½ existe !!!")
         Return
      Endif     
      RecLock("SBJ",.T.)
@@ -3243,9 +3244,9 @@ Local nRegistro := 0
 Local aArea    := GetArea()
 Local aAreaSB1 := SB1->(GetArea())
 
-//ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
-//³ Preenche parametros nao recebidos pela funcao         ³
-//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä¿
+//ï¿½ Preenche parametros nao recebidos pela funcao         ï¿½
+//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 dData     := IF(dData == NIL .Or. !(ValType(dData) == "D") .Or. Empty(dData),dDataBase,dData)
 cChave    := IF(cChave == NIL,"",cChave)
 cLoteFor  := IF(cLoteFor == NIL,"",cLoteFor)
@@ -3367,9 +3368,9 @@ If SBF->BF_QUANT <= 0
       DeletSBF()
    Endif
 Else	
-    //ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿
-	//³ Altera o Status do Endereco no SBE para Ocupado caso este possua saldo no SBF ³
-	//ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ
+    //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä¿
+	//ï¿½ Altera o Status do Endereco no SBE para Ocupado caso este possua saldo no SBF ï¿½
+	//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 	DBSelectArea('SBE')	
 	DBSetOrder(1)
 	If MsSeek(xFilial('SBE')+SBF->BF_LOCAL+SBF->BF_LOCALIZ, .F.) .And. !(SBE->BE_STATUS=='2') .And. !(SBE->BE_STATUS=='3')
@@ -3406,7 +3407,7 @@ aadd(aHeader, {"TES"              , "TES"     , "@!"              , 03       , 0
 aadd(aHeader, {"CF"               , "CF"      , "@!"              , 03       , 0         ,"U_ValidACols()"       , ""      , "C"    , ""        ,,})
 aadd(aHeader, {"Lote"             , "LOTE"    , "@!"              , 10       , 0         ,""       , ""      , "C"    , ""        ,,})
 aadd(aHeader, {"Num.Lote"         , "NUMLOTE" , "@!"              , 06       , 0         ,""       , ""      , "C"    , ""        ,,})
-aadd(aHeader, {"Endereço"         , "ENDERECO", "@!"              , 15       , 0         ,""       , ""      , "C"    , ""        ,,})
+aadd(aHeader, {"Endereï¿½o"         , "ENDERECO", "@!"              , 15       , 0         ,""       , ""      , "C"    , ""        ,,})
 aadd(aHeader, {"Qtde."            , "QTDE"    , cPict             , 18       , 2         ,"U_ValidACols()"       , ""      , "N"    , ""        ,,})
 aadd(aHeader, {"Qtde.UM2"         , "QTDE2UM" , cPict2UM          , 18       , 2         ,"U_ValidACols()"       , ""      , "N"    , ""        ,,})
 
@@ -3635,7 +3636,7 @@ User Function ValidACols()
 Local cCampo  := ReadVar()
 Local _Return := .T.
 IF cCampo $ "M->ORIGEM/M->TES/M->CF"
-   MsgStop("Este campo não pode ser alterado.","Atenção")
+   MsgStop("Este campo nï¿½o pode ser alterado.","Atenï¿½ï¿½o")
    _Return := .F.
 ElseIF cCampo == "M->QTDE2UM"
    nQuant     := &(cCampo)
@@ -3732,7 +3733,7 @@ Static Function fDigSenha()
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 Private cSenha   := Space(10)         
 Private cSenhAce := "tudo"
-@ 067,020 To 169,312 Dialog Senhadlg Title OemToAnsi("Liberação de Acesso")
+@ 067,020 To 169,312 Dialog Senhadlg Title OemToAnsi("Liberaï¿½ï¿½o de Acesso")
 @ 015,005 Say OemToAnsi("Informe a senha para o acesso ?") Size 80,8
 @ 015,089 Get cSenha Size 50,10 Password
 @ 037,106 BmpButton Type 1 Action fOK()
@@ -3744,7 +3745,7 @@ Return(_lReturn)
 Static Function fOK()
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 If ALLTRIM(cSenha)<> cSenhAce
-   MsgStop("Senha não Confere !!!")
+   MsgStop("Senha nï¿½o Confere !!!")
    cSenha  := Space(10)
    dlgRefresh(Senhadlg)
 Else
