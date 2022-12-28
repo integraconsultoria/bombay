@@ -1,5 +1,10 @@
-#INCLUDE "Totvs.ch"
-#INCLUDE "Apwizard.ch"
+#INCLUDE "PROTHEUS.CH"
+#INCLUDE "TOTVS.CH"  
+#INCLUDE "apwizard.ch"
+#INCLUDE "Ap5Mail.Ch"
+#INCLUDE "FILEIO.CH"
+#INCLUDE "TOPCONN.CH"
+#INCLUDE "tbiconn.ch"
 
 /*/{protheus.doc} BoDootax
 *******************************************************************************************
@@ -347,7 +352,8 @@ Local lRet   := .F.
 Local cQuery := ""
 Local cAlias := GetNextAlias() 
 Local cSerie := GetNewPar("BO_SERMLIV","3")
-Local cEstado:= GetNewPar("MV_ESTADO","")
+Local aImpMLP:= {}
+Local lOk    := .F.
 
 cQuery := "SELECT DISTINCT * FROM ("                                                                        +CRLF
 cQuery += "SELECT DISTINCT SF2.R_E_C_N_O_ AS RECSF2"                                                        +CRLF
@@ -413,11 +419,7 @@ If !Empty(cSerie)
     EndIf
     If SF2->(FieldPos("F2_XDOOTAX"))>0
         cQuery += "   AND SF2.F2_XDOOTAX = ' '"                                                                 +CRLF
-    EndIf
-
-    //->> Marcelo Celi - 10/10/2022
-    cQuery += "   AND SF2.F2_EST <> '"+cEstado+"'"                                                              +CRLF
-
+    EndIf    
     cQuery += "AND SF2.F2_SERIE = '"+cSerie+"'"                                                                 +CRLF
     cQuery += "AND SF2.D_E_L_E_T_ = ' '"                                                                        +CRLF
 EndIf
@@ -428,14 +430,26 @@ Do While (cAlias)->(!Eof())
     SF2->(dbGoto((cAlias)->RECSF2))
     SA1->(dbSetOrder(1))
     If SA1->(dbSeek(xFilial("SA1")+SF2->(F2_CLIENTE+F2_LOJA)))
-        aAdd(aNotas,{.F.,               ; // 01 - Marcação/Seleção do Registro
-                     SF2->F2_FILIAL,    ; // 02 - Filial
-                     SF2->F2_SERIE,     ; // 03 - Serie
-                     SF2->F2_DOC,       ; // 04 - Documento                     
-                     SF2->F2_EMISSAO,   ; // 05 - Data de Emissao
-                     SA1->A1_COD,       ; // 06 - Codigo do Cliente
-                     SA1->A1_LOJA,      ; // 07 - Loja do Cliente
-                     SA1->A1_NOME}      ) // 08 - Nome do Cliente
+        //->> Marcelo Celi - 27/10/2022
+        lOk := .T.
+        If !Empty(cSerie) .And. Alltrim(SF2->F2_SERIE)==Alltrim(cSerie)
+            aImpMLP := u_BoVStByXml(NIL,SF2->F2_DOC,SF2->F2_SERIE)
+            If aImpMLP[2]>0
+                lOk := .T.
+            Else
+                lOk := .F.    
+            EndIf
+        EndIf
+        If lOk
+            aAdd(aNotas,{.F.,               ; // 01 - Marcação/Seleção do Registro
+                        SF2->F2_FILIAL,    ; // 02 - Filial
+                        SF2->F2_SERIE,     ; // 03 - Serie
+                        SF2->F2_DOC,       ; // 04 - Documento                     
+                        SF2->F2_EMISSAO,   ; // 05 - Data de Emissao
+                        SA1->A1_COD,       ; // 06 - Codigo do Cliente
+                        SA1->A1_LOJA,      ; // 07 - Loja do Cliente
+                        SA1->A1_NOME}      ) // 08 - Nome do Cliente
+        EndIf
     EndIf
     (cAlias)->(dbSkip())
 EndDo
@@ -837,3 +851,125 @@ If MsgYesNo("Este programa deverá decodificar o arquivo xml encaminhado ao Doota
 EndIf
 
 Return
+
+/*/{protheus.doc} BoVStByXml
+*******************************************************************************************
+Retorna o valor de st e de difal da nota com base no xml.
+
+@author: Marcelo Celi Marques
+@since: 27/10/2022
+@param: 
+@return:
+@type function: Usuario
+*******************************************************************************************
+/*/
+User Function BoVStByXml(cXml,cDocumento,cSerie)
+Local nVst     := 0
+Local nVSufDes := 0
+Local nVSufRem := 0
+Local cError   := ""
+Local cWarning := ""
+Local lJob     := .F.
+Local aArea    := {}
+Local aAreaSD2 := {}
+Local aAreaSF2 := {}
+Local cNumPed  := ""
+Local cNumVenda:= "" 
+Local nX       := 1 
+Local lFound   := .F.
+
+Default cXml        := ""
+Default cDocumento  := ""
+Default cSerie      := ""
+
+Private _oXml   := NIL
+Private oNFe    := NIL
+Private oAuxXML := NIL
+
+lJob := Select( "SM0" ) <= 0
+If lJob
+   RpcSetType(3)
+    PREPARE ENVIRONMENT EMPRESA "01" FILIAL "0101"
+EndIf
+
+cDocumento  := PadR(cDocumento,Tamsx3("F2_DOC")[01])
+cSerie      := PadR(cSerie    ,Tamsx3("F2_SERIE")[01])
+
+aArea    := GetArea()
+aAreaSD2 := SD2->(GetArea())
+aAreaSF2 := SF2->(GetArea())
+
+If Empty(cXml)
+    If !Empty(cDocumento)
+        SF2->(dbSetOrder(1))
+        If SF2->(dbSeek(xFilial("SF2")+cDocumento+cSerie))            
+            If SF2->(FieldPos("F2_XXMLSIT"))>0 .And. !Empty(SF2->F2_XXMLSIT)
+               cXml := SF2->F2_XXMLSIT            
+            EndIf
+            If Empty(cXml)
+                SD2->(dbSetOrder(3))
+                If SD2->(dbSeek(xFilial("SD2")+SF2->(F2_DOC+F2_SERIE+F2_CLIENTE+F2_LOJA)))
+                    cNumPed := SD2->D2_PEDIDO
+                    SC5->(dbSetOrder(1))
+                    If SC5->(dbSeek(xFilial("SC5")+cNumPed))
+                        cNumVenda := PadR(SC5->C5_XIDINTG,Tamsx3("C5_XIDINTG")[01])
+                        cXml := u_MaGDoc2Vtx(cNumVenda,.F.)[04]
+                    EndIf
+                EndIf
+            EndIf
+        EndIf
+    EndIf
+EndIf
+
+If !Empty(cXml)
+    _oXml := XmlParser(cXml,"_",@cError, @cWarning )
+    If AllTrim(Type("_oXml:_NfeProc"))=="O" .Or. AllTrim(Type("_oXml:_Nfe"))=="O"
+        oAuxXML := _oXML			
+        //-- Resgata o no inicial da NF-e
+        While !lFound
+            oAuxXML := XmlChildEx(oAuxXML,"_NFE")
+            If !(lFound := oAuxXML # Nil) //SE NAO ENCONTROU
+                For nX := 1 To XmlChildCount(_oXML)
+                    oAuxXML  := XmlChildEx(XmlGetchild(_oXML,nX),"_NFE")                    
+                    lFound := oAuxXML:_InfNfe # Nil
+                    If lFound 
+                        oNFe := XmlChildEx(oAuxXML,"_INFNFE")                        
+                        If Type("oNFe:_TOTAL")<>"U"
+                            oNFe := XmlChildEx(oNFe,"_TOTAL")
+                            If Type("oNFe:_ICMSTOT")<>"U"
+                                oNFe := XmlChildEx(oNFe,"_ICMSTOT")
+                                //->> Valor de ST
+                                If Type("oNFe:_VST")<>"U"
+                                    nVst := Val(XmlChildEx(oNFe,"_VST"):Text)
+                                EndIf
+                                //->> Valor de Difal destino
+                                If Type("oNFe:_VICMSUFDEST")<>"U"
+                                    nVSufDes := Val(XmlChildEx(oNFe,"_VICMSUFDEST"):Text)
+                                EndIf
+                                //->> Valor de Difal do remetente
+                                If Type("oNFe:_VICMSUFREMET")<>"U"
+                                    nVSufRem := Val(XmlChildEx(oNFe,"_VICMSUFREMET"):Text)
+                                EndIf
+                            EndIf
+                        EndIf                        
+                        Exit
+                    EndIf
+                Next nX
+            EndIf				
+            If lFound
+                _oXML := oAuxXML
+                Exit
+            EndIf
+        EndDo
+    EndIf
+EndIf
+
+SF2->(RestArea(aAreaSF2))
+SD2->(RestArea(aAreaSD2))
+RestArea(aArea)
+
+If lJob
+    RESET ENVIRONMENT
+EndIf
+
+Return {nVst,nVSufDes,nVSufRem}
