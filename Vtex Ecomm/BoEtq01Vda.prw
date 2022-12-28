@@ -194,12 +194,19 @@ Local lRet      := .F.
 Local nQuant	:= 0
 Local cTransp   := ""
 
+//->>Marcelo Celi - 27/10/2022
+Local cNumVdaSit:= ""
+Local cOrigem   := ""
+
 If !Empty(aRetParam[01])
 	cFilAnt 	:= aRetParam[01]
 	aEtiquetas  := {}
 	aCols		:= {}
 
 	cQuery := " SELECT DISTINCT F2_FILIAL, F2_DOC, F2_SERIE, F2_CLIENTE, F2_LOJA, F2_VOLUME1, F2_EMISSAO, F2_CHVNFE, C5_NUM"	+CRLF 
+	//->>Marcelo Celi - 27/10/2022
+	cQuery += ", C5_XIDINTG, C5_XORIGEM"+CRLF
+
 	cQuery += " 	FROM "+RetSqlName("SF2")+" SF2 (NOLOCK)"																	+CRLF
 
 	cQuery += "	INNER JOIN "+RetSqlName("SD2")+" SD2 (NOLOCK)"																	+CRLF
@@ -242,6 +249,8 @@ If !Empty(aRetParam[01])
         cEmissao  := StrZero(Day(dEmissao),2)+"/"+StrZero(Month(dEmissao),2)+"/"+StrZero(Year(dEmissao),4)        
         cEndereco := ""
 		cTransp   := GetTransp((cTmp1)->C5_NUM)
+		cNumVdaSit:= Alltrim((cTMP1)->C5_XIDINTG)
+		cOrigem   := Alltrim((cTMP1)->C5_XORIGEM)
 
         SA1->(DbSetOrder(1))
 		If SA1->(DbSeek(xFilial("SA1") + (cTMP1)->F2_CLIENTE + (cTMP1)->F2_LOJA ))
@@ -273,12 +282,12 @@ If !Empty(aRetParam[01])
 
 			If aRetParam[08] == 1
 				//->> Por Pedido
-				AAdd(aEtiquetas,{1,cDocNF,cSerNF,"",cEmissao,cChvNfe,cEndereco,cNome,cTransp})
+				AAdd(aEtiquetas,{1,cDocNF,cSerNF,"",cEmissao,cChvNfe,cEndereco,cNome,cTransp,cOrigem,cNumVdaSit})
 				aAdd(aCols,{1,cDocNF,cSerNF,"",.F.})
 			Else
 				//->> Por Volume
 				For nY := 1 To nVolumes                
-					AAdd(aEtiquetas,{1,cDocNF,cSerNF,Strzero(nY,3)+"/"+Strzero(nVolumes,3),cEmissao,cChvNfe,cEndereco,cNome,cTransp})
+					AAdd(aEtiquetas,{1,cDocNF,cSerNF,Strzero(nY,3)+"/"+Strzero(nVolumes,3),cEmissao,cChvNfe,cEndereco,cNome,cTransp,cOrigem,cNumVdaSit})
 					aAdd(aCols,{1,cDocNF,cSerNF,Strzero(nY,3)+"/"+Strzero(nVolumes,3),.F.})
 				Next nY			
 			EndIf
@@ -396,6 +405,9 @@ Local cEndRemetent		:= ""
 Local lPrnLinha			:= .T.
 Local nFontSize			:= 0
 Local cLogoPB			:= "logopb_"+Alltrim(cEmpAnt)+Alltrim(cFilAnt)+".png"
+
+//->>Marcelo Celi - 27/10/2022
+Local cTransEspec       := Alltrim(Upper(GetNewPar("BO_TRPESPC","EU ENTREGO")))
 
 If lMv_Logod
 	cGrpCompany	:= AllTrim(FWGrpCompany())
@@ -541,11 +553,21 @@ If oPrint:nModalResult == 1 //PD_OK
 				oPrint:SayAlign (CmToPx(2.60,"V"),CmToPx(7.50,"H"),"Transportadora:",TFont():New("Arial"  ,,12,,/*Negrito*/.T.,,,,,.F. ),/*Largura*/CmToPx(09.00,"H"),/*Altura*/CmToPx(1.00,"V"),/*nCor_texto*/,/*Alinh_Horz*/ 0 /*(Esquerda)*/,/*Alinh_Vert*/ 1 /*(Superior)*/)
 				oPrint:SayAlign (CmToPx(2.80,"V"),CmToPx(7.50,"H"),Left(Upper(aEtiquetas[nEtiqueta,09]),25),TFont():New("CALIBRI"  ,,18,,/*Negrito*/.T.,,,,,.F. ),/*Largura*/CmToPx(07.00,"H"),/*Altura*/CmToPx(2.00,"V"),/*nCor_texto*/,/*Alinh_Horz*/ 0 /*(Esquerda)*/,/*Alinh_Vert*/ 1 /*(Superior)*/)
 
-				//CODIGO DE BARRAS DA CHAVE DA NOTA
-				oPrint:Say(CmToPx(4.13,"V"),CmToPx(0.50,"H"),"CHAVE DE ACESSO DA NF-E",TFont():New("Arial"  ,,14,,/*Negrito*/.T.,,,,,.F. ))
-				nFontSize := 45
-				oPrint:Code128C(CmToPx(5.50,"V"),CmToPx(0.50,"H"),aEtiquetas[nEtiqueta,06], nFontSize )
-				oPrint:SayAlign (CmToPx(5.60,"V"),CmToPx(0.50,"H"),TransForm(aEtiquetas[nEtiqueta,06],"@r 9999 9999 9999 9999 9999 9999 9999 9999 9999 9999 9999"),TFont():New("CALIBRI"  ,,12,,/*Negrito*/.T.,,,,,.F. ),/*Largura*/CmToPx(14.50,"H"),/*Altura*/CmToPx(1.00,"V"),/*nCor_texto*/,/*Alinh_Horz*/ 0 /*(Esquerda)*/,/*Alinh_Vert*/ 1 /*(Superior)*/)
+
+				//->>Marcelo Celi - 27/10/2022
+				If Upper(Alltrim(aEtiquetas[nEtiqueta,10])) == "VTEX" .And. Alltrim(Left(Upper(aEtiquetas[nEtiqueta,09]),25)) $ cTransEspec
+					//CODIGO DA VENDA VTEX
+					oPrint:Say(CmToPx(4.13,"V"),CmToPx(0.50,"H"),"NUMERO DO PEDIDO VTEX",TFont():New("Arial"  ,,14,,/*Negrito*/.T.,,,,,.F. ))
+					nFontSize := 45
+					oPrint:Code128C(CmToPx(5.50,"V"),CmToPx(0.50,"H"),Alltrim(aEtiquetas[nEtiqueta,11]), nFontSize )
+					oPrint:SayAlign (CmToPx(5.60,"V"),CmToPx(0.50,"H"),Alltrim(aEtiquetas[nEtiqueta,11]),TFont():New("CALIBRI"  ,,12,,/*Negrito*/.T.,,,,,.F. ),/*Largura*/CmToPx(14.50,"H"),/*Altura*/CmToPx(1.00,"V"),/*nCor_texto*/,/*Alinh_Horz*/ 0 /*(Esquerda)*/,/*Alinh_Vert*/ 1 /*(Superior)*/)
+				Else
+					//CODIGO DE BARRAS DA CHAVE DA NOTA
+					oPrint:Say(CmToPx(4.13,"V"),CmToPx(0.50,"H"),"CHAVE DE ACESSO DA NF-E",TFont():New("Arial"  ,,14,,/*Negrito*/.T.,,,,,.F. ))
+					nFontSize := 45
+					oPrint:Code128C(CmToPx(5.50,"V"),CmToPx(0.50,"H"),aEtiquetas[nEtiqueta,06], nFontSize )
+					oPrint:SayAlign (CmToPx(5.60,"V"),CmToPx(0.50,"H"),TransForm(aEtiquetas[nEtiqueta,06],"@r 9999 9999 9999 9999 9999 9999 9999 9999 9999 9999 9999"),TFont():New("CALIBRI"  ,,12,,/*Negrito*/.T.,,,,,.F. ),/*Largura*/CmToPx(14.50,"H"),/*Altura*/CmToPx(1.00,"V"),/*nCor_texto*/,/*Alinh_Horz*/ 0 /*(Esquerda)*/,/*Alinh_Vert*/ 1 /*(Superior)*/)
+				EndIf
 
 				oPrint:Box(CmToPx(6.20,"V"),CmToPx(0.25,"H"),CmToPx(9.75,"V"),CmToPx(14.75,"H"), "-4")
 
