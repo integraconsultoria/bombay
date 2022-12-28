@@ -1,6 +1,11 @@
 #INCLUDE "TOTVS.CH"
 #INCLUDE "apwizard.ch"
 #INCLUDE 'MSGRAPHI.CH'
+#INCLUDE "tbiconn.ch"
+#INCLUDE "TOPCONN.CH"
+
+Static _cEmp    := "01"
+Static _cFil    := "0101"
 
 Static POSIC_PROD  	:= 0
 Static POSIC_GRID  	:= 0
@@ -22,7 +27,7 @@ User Function BOSimulPrc()
 Local oWizard			:= NIL
 Local aBox01Param 		:= {}
 Local cTextApres		:= ""
-Local cLogotipo     	:= GetNewpar("BO_LOGOCLI","WIZARD")
+Local cLogotipo     	:= "simulaca.png"
 Local lOk				:= .F.
 Local aDados			:= {}
 Local aOpcao			:= {"Somente os Produtos Contidos em Tabelas de Precos","Todos os Produtos, estando ou nao em tabelas de Precos"}
@@ -52,19 +57,35 @@ aAdd( aBox01Param,{1,"% Sugerido Comissao"						,aRet01Param[05] ,"@E 9,999.99"	
 aAdd( aBox01Param,{3,"% ICMS"									,aRet01Param[06],aICMS,250,".T.",.T.,".T."					})  
 */
 
-cTextApres := "Este recurso possibilita a que o usuario formate os precos mediante consultas e simulacoes."
+cTextApres := "Este recurso possibilita que oo Usuario formate os preços dos produtos nas devidas Tabelas de Preços com base nas Projeções e Simulações do Período."
+If !FindFunction("u__InWizard")
+	oWizard := APWizard():New(  "Formacao de Preco",                												 ;   // chTitle  - Titulo do cabecalho
+								"", 														         			     ;   // chMsg    - Mensagem do cabecalho
+								"PRECOS",        													 			     ;   // cTitle   - Titulo do painel de apresentacao
+								cTextApres,       													 			     ;   // cText    - Texto do painel de apresentacao
+								{|| .T. },          												 			     ;   // bNext    - Bloco de codigo a ser executado para validar o botao "Avancar"
+								{|| .T. },              											 				 ;   // bFinish  - Bloco de codigo a ser executado para validar o botao "Finalizar"
+								.T.,             												     			     ;   // lPanel   - Se .T. sera criado um painel, se .F. sera criado um scrollbox
+								cLogotipo,          												 			     ;   // cResHead - Nome da imagem usada no cabecalho, essa tem que fazer parte do repositorio 
+								{|| },                												 			     ;   // bExecute - Bloco de codigo contendo a acao a ser executada no clique dos botoes "Avancar" e "Voltar"
+								.F.,                  												 			     ;   // lNoFirst - Se .T. nao exibe o painel de apresentacao
+								NIL  		                   										 				 )   // aCoord   - Array contendo as coordenadas da tela
 
-oWizard := APWizard():New(  "Formacao de Preco",                												 ;   // chTitle  - Titulo do cabecalho
-                            "", 														         			     ;   // chMsg    - Mensagem do cabecalho
-                            "PRECOS",        													 			     ;   // cTitle   - Titulo do painel de apresentacao
-                            cTextApres,       													 			     ;   // cText    - Texto do painel de apresentacao
-                            {|| .T. },          												 			     ;   // bNext    - Bloco de codigo a ser executado para validar o botao "Avancar"
-                            {|| .T. },              											 				 ;   // bFinish  - Bloco de codigo a ser executado para validar o botao "Finalizar"
-                            .T.,             												     			     ;   // lPanel   - Se .T. sera criado um painel, se .F. sera criado um scrollbox
-                            cLogotipo,          												 			     ;   // cResHead - Nome da imagem usada no cabecalho, essa tem que fazer parte do repositorio 
-                            {|| },                												 			     ;   // bExecute - Bloco de codigo contendo a acao a ser executada no clique dos botoes "Avancar" e "Voltar"
-                            .F.,                  												 			     ;   // lNoFirst - Se .T. nao exibe o painel de apresentacao
-                            NIL  		                   										 				 )   // aCoord   - Array contendo as coordenadas da tela
+Else   	
+	oWizard := InWizard():New( "Projeção de Preços",                   												 ;   // chTitle  - Titulo do cabeï¿½alho
+                                "", 					                    				         			     ;   // chMsg    - Mensagem do cabeï¿½alho
+                                "PRECOS",                      													 	 ;   // cTitle   - Tï¿½tulo do painel de apresentaï¿½ï¿½o
+								cTextApres,       													 			     ;   // cText    - Texto do painel de apresentaï¿½ï¿½o
+								{||  .T. },	 		        														 ;   // bNext    - Bloco de cï¿½digo a ser executado para validar o botï¿½o "Avanï¿½ar"
+								{||  .T. },            																 ;   // bFinish  - Bloco de cï¿½digo a ser executado para validar o botï¿½o "Finalizar"
+								.T.,             												     			     ;   // lPanel   - Se .T. serï¿½ criado um painel, se .F. serï¿½ criado um scrollbox
+								cLogotipo,          												 			     ;   // cResHead - Nome da imagem usada no cabeï¿½alho, essa tem que fazer parte do repositï¿½rio 
+								{|| },                												 			     ;   // bExecute - Bloco de cï¿½digo contendo a aï¿½ï¿½o a ser executada no clique dos botï¿½es "Avanï¿½ar" e "Voltar"
+								.F.,                  												 			     ;   // lNoFirst - Se .T. nï¿½o exibe o painel de apresentaï¿½ï¿½o
+								NIL,  		                   										 				 ;   // aCoord   - Array contendo as coordenadas da tela
+								NIL,		    																	 ;	 // Imagem do Rodape
+								"Formação de Preço - Versão 2.0")     												 	 // Texto da Barra de Apresentação Principal em 3d
+EndIf
 
 oWizard:NewPanel(   "Parametros",                          							                			 ;   // cTitle   - Ttulo do painel 
                     "Informe os parametros para a selecao dos produtos", 			             			     ;   // cMsg     - Mensagem posicionada no cabecalho do painel
@@ -416,158 +437,289 @@ Return aRetorno
 Retorna em array, os dados extraidos do cadastro de produtos
  
 @author: Marcelo Celi Marques
-@since: 23/07/2020
+@since: 25/11/2022
 @param: 
 @return:
 @type function: Estatico
 *******************************************************************************************
 /*/
 Static Function GetProdutos(aDados)
+Local lRet := .F.
+
+Private _oProcess := NIL
+
+_oProcess := MsNewProcess():New( {|lEnd| lRet := GetSimulac(@aDados) }, "Processando desde as "+Time()+" de "+dToc(Date())  , "Gerando Simulação de Preços", .F. )
+_oProcess:Activate()
+
+Return lRet
+
+/*/{protheus.doc} GetSimulac
+*******************************************************************************************
+Retorna em array, os dados extraidos do cadastro de produtos da simulação
+ 
+@author: Marcelo Celi Marques
+@since: 25/11/2022
+@param: 
+@return:
+@type function: Estatico
+*******************************************************************************************
+/*/
+Static Function GetSimulac(aDados)
 Local lOk	 	:= .F.
 Local cQuery 	:= ""
 Local cAlias 	:= GetNextAlias()
 Local aCusto 	:= {}	
 Local lConsidera:= .F.
+Local cTpsPadr	:= Alltrim(Upper(GetNewPar("BO_TPPRDPD","ME/PA")))
+Local nPosPrd	:= 0
+Local nCount    := 0
+Local nPrdCount := 0
+Local nRegTab   := 0
+Local nRegPrd   := 0
+
+Local dDataIni	:= Stod("")
+Local dDataFim	:= Stod("")
+Local nMes		:= 0
+Local nAno		:= 0
+
+If Month(dDatabase)==1
+	nMes := 12
+	nAno := Year(dDatabase)-1
+Else
+	nMes := Month(dDatabase)-1
+	nAno := Year(dDatabase)
+EndIf
+
+dDataIni := Stod(StrZero(nAno,4)+StrZero(nMes,2)+"01")          // MGOMES 27/03/2021
+dDataFim := LastDay(Stod(StrZero(nAno,4)+StrZero(nMes,2)+"01")) // MGOMES 27/03/2021
 
 aDados := {}
 
-cQuery := "SELECT SB1.B1_COD,"															+CRLF
-cQuery += "		  SB1.B1_DESC,"															+CRLF
-cQuery += "		  SB1.B1_TIPO,"															+CRLF
-cQuery += "		  SB1.B1_XFABRIC,"														+CRLF
-cQuery += "		  SB1.B1_XNOMGRP,"														+CRLF
-cQuery += "		  SB1.B1_XVALID,"														+CRLF
-cQuery += "		  SB1.B1_XVLDAAB,"														+CRLF
-cQuery += "		  SB1.R_E_C_N_O_ AS RECSB1"												+CRLF
-cQuery += "	FROM "+RetSqlName("SB1")+" SB1 (NOLOCK)"									+CRLF
-cQuery += "	WHERE SB1.B1_FILIAL = '"+xFilial("SB1")+"'"									+CRLF
-cQuery += "	  AND SB1.B1_COD BETWEEN '"+aRet01Param[02]+"' AND '"+aRet01Param[03]+"'"	+CRLF
-//cQuery += "	  AND SB1.B1_TIPO   IN ('PA','ME')"											+CRLF
-cQuery += "	  AND SB1.D_E_L_E_T_ = ' '	"												+CRLF
-cQuery += " ORDER BY SB1.B1_DESC"														+CRLF
+Private cTipos := ""
 
-dbUseArea(.T.,"TOPCONN",TcGenQry(,,ChangeQuery(cQuery)),cAlias,.T.,.T.)
-Do While (cAlias)->(!Eof())
-	lConsidera := .T.
+If GetTipos(cTpsPadr)
+	If !Empty(cTipos)
+		cTipos := FormatIn(cTipos,"/")
+	EndIf
+
+	//->> Quantidade de Produtos a processar
+	cQuery := "SELECT DISTINCT B1_COD FROM ("												+CRLF
+	cQuery += "SELECT * FROM ("																+CRLF
+	cQuery += "SELECT SB1.B1_COD,"															+CRLF
+	cQuery += "		  SB1.B1_DESC,"															+CRLF
+	cQuery += "		  SB1.B1_TIPO,"															+CRLF
+	cQuery += "		  SB1.B1_XFABRIC,"														+CRLF
+	cQuery += "		  SB1.B1_XNOMGRP,"														+CRLF
+	cQuery += "		  SB1.B1_XVALID,"														+CRLF
+	cQuery += "		  SB1.B1_XVLDAAB,"														+CRLF
+	cQuery += "		  SB1.R_E_C_N_O_ AS RECSB1,"											+CRLF
+	cQuery += "		  ISNULL(DA1.R_E_C_N_O_,0) AS RECDA1,"									+CRLF
+	cQuery += "		  ISNULL(DA0.R_E_C_N_O_,0) AS RECDA0"	   								+CRLF
+	cQuery += "	FROM "+RetSqlName("SB1")+" SB1 (NOLOCK)"									+CRLF
 	If aRet01Param[01]==1
-		DA1->(dbSetOrder(2))
-		lConsidera := DA1->(dbSeek(xFilial("DA1")+(cAlias)->B1_COD))
+		cQuery += "INNER JOIN "+RetSqlName("DA1")+" DA1 (NOLOCK)"	+CRLF
+	Else
+		cQuery += "LEFT JOIN "+RetSqlName("DA1")+" DA1 (NOLOCK)"	+CRLF
 	EndIf
+	cQuery += "  ON DA1.DA1_FILIAL = '"+xFilial("DA1")+"'"		+CRLF
+	cQuery += " AND DA1.DA1_CODPRO = SB1.B1_COD"				+CRLF
+	cQuery += " AND DA1.D_E_L_E_T_ = ' '"						+CRLF
+	If aRet01Param[01]==1
+		cQuery += "INNER JOIN "+RetSqlName("DA0")+" DA0 (NOLOCK)"	+CRLF
+	Else
+		cQuery += "LEFT JOIN "+RetSqlName("DA0")+" DA0 (NOLOCK)"	+CRLF
+	EndIf
+	cQuery += "  ON DA0.DA0_FILIAL = '"+xFilial("DA0")+"'"		+CRLF
+	cQuery += " AND DA0.DA0_CODTAB = DA1.DA1_CODTAB"			+CRLF
+	cQuery += " AND DA0.DA0_ATIVO <> '2'"						+CRLF
+	cQuery += " AND DA0.D_E_L_E_T_ = ' '"						+CRLF
+	cQuery += "	WHERE SB1.B1_FILIAL = '"+xFilial("SB1")+"'"									+CRLF
+	cQuery += "	  AND SB1.B1_COD BETWEEN '"+aRet01Param[02]+"' AND '"+aRet01Param[03]+"'"	+CRLF
+	If !Empty(cTipos)
+		cQuery += "	  AND SB1.B1_TIPO IN "+cTipos											+CRLF
+	EndIf
+	cQuery += "	  AND SB1.D_E_L_E_T_ = ' '	"												+CRLF
+	cQuery += ") AS TMP"+CRLF
+	If aRet01Param[01]==1
+		cQuery += "WHERE TMP.RECDA1 > 0 AND TMP.RECDA0 > 0" +CRLF
+	EndIf
+	cQuery += ") TMPQUANT"
+	MsgRun("Extraindo Produtos...","Aguarde",{|| dbUseArea(.T.,"TOPCONN",TcGenQry(,,ChangeQuery(cQuery)),cAlias,.T.,.T.), dbEval({|x| nPrdCount++},,{|| !(cAlias)->(Eof())}) })
+	(cAlias)->(dbCloseArea())
 
-	If lConsidera
+	//->> Seleciona os itens
+	cQuery := "SELECT * FROM ("																+CRLF
+	cQuery += "SELECT SB1.B1_COD,"															+CRLF
+	cQuery += "		  SB1.B1_DESC,"															+CRLF
+	cQuery += "		  SB1.B1_TIPO,"															+CRLF
+	cQuery += "		  SB1.B1_XFABRIC,"														+CRLF
+	cQuery += "		  SB1.B1_XNOMGRP,"														+CRLF
+	cQuery += "		  SB1.B1_XVALID,"														+CRLF
+	cQuery += "		  SB1.B1_XVLDAAB,"														+CRLF
+	cQuery += "		  ISNULL(DA1.DA1_CODTAB,'') AS TABELA,"									+CRLF
+	cQuery += "		  SB1.R_E_C_N_O_ AS RECSB1,"											+CRLF
+	cQuery += "		  ISNULL(DA1.R_E_C_N_O_,0) AS RECDA1,"									+CRLF
+	cQuery += "		  ISNULL(DA0.R_E_C_N_O_,0) AS RECDA0,"	   								+CRLF
 
-        aStCus := U_SumCosts((cAlias)->B1_COD)
+	//->> Adquirir a quantidade vendida no canal no periodo
+	cQuery += "		  ISNULL((SELECT SUM(D2_QUANT) FROM "+RetSqlName("SD2")+" SD2 (NOLOCK)" 			+CRLF
+	cQuery += "				INNER JOIN "+RetSqlName("SC5")+" SC5 (NOLOCK)"			 					+CRLF
+	cQuery += "				  ON SC5.C5_FILIAL  = '"+xFilial("SC5")+"'"				 					+CRLF
+	cQuery += "				 AND SC5.C5_NUM     = SD2.D2_PEDIDO"					 					+CRLF
+	cQuery += "				 AND SC5.C5_TABELA  = DA1.DA1_CODTAB"					 					+CRLF
+	cQuery += "				 AND SC5.D_E_L_E_T_ = ' '"								 					+CRLF
+	cQuery += "		  		INNER JOIN "+RetSqlName("SF2")+" SF2 (NOLOCK)"								+CRLF
+	cQuery += "				  ON SF2.F2_FILIAL  = SD2.D2_FILIAL"										+CRLF
+	cQuery += "				 AND SF2.F2_DOC     = SD2.D2_DOC"											+CRLF
+	cQuery += "				 AND SF2.F2_SERIE   = SD2.D2_SERIE"											+CRLF
+	cQuery += "				 AND SF2.F2_TIPO    = 'N'"													+CRLF
+	cQuery += "				 AND SF2.F2_EMISSAO BETWEEN '"+Dtos(dDataIni)+"' AND '"+Dtos(dDataFim)+"'"	+CRLF
+	cQuery += "				 AND SF2.D_E_L_E_T_ = ' '"													+CRLF
+	cQuery += "				WHERE SD2.D2_FILIAL = '"+xFilial("SD2")+"'"				 					+CRLF
+	cQuery += "				  AND SD2.D2_COD    = SB1.B1_COD"						 					+CRLF
+	cQuery += " 	  		  AND SD2.D_E_L_E_T_ = ' '),0) AS QTDVENDIDO"								+CRLF
 
-		if Len(aStCus[4]) = 0 
-		   aCusto := GetCustoPrd((cAlias)->B1_COD)
-		else 
-		   aCUsto := {aStCus[3],dDataBase}   
-        endif
+	cQuery += "	FROM "+RetSqlName("SB1")+" SB1 (NOLOCK)"									+CRLF
+	If aRet01Param[01]==1
+		cQuery += "INNER JOIN "+RetSqlName("DA1")+" DA1 (NOLOCK)"	+CRLF
+	Else
+		cQuery += "LEFT JOIN "+RetSqlName("DA1")+" DA1 (NOLOCK)"	+CRLF
+	EndIf
+	cQuery += "  ON DA1.DA1_FILIAL = '"+xFilial("DA1")+"'"		+CRLF
+	cQuery += " AND DA1.DA1_CODPRO = SB1.B1_COD"				+CRLF
+	cQuery += " AND DA1.D_E_L_E_T_ = ' '"						+CRLF
+	If aRet01Param[01]==1
+		cQuery += "INNER JOIN "+RetSqlName("DA0")+" DA0 (NOLOCK)"	+CRLF
+	Else
+		cQuery += "LEFT JOIN "+RetSqlName("DA0")+" DA0 (NOLOCK)"	+CRLF
+	EndIf
+	cQuery += "  ON DA0.DA0_FILIAL = '"+xFilial("DA0")+"'"		+CRLF
+	cQuery += " AND DA0.DA0_CODTAB = DA1.DA1_CODTAB"			+CRLF
+	cQuery += " AND DA0.DA0_ATIVO <> '2'"						+CRLF
+	cQuery += " AND DA0.D_E_L_E_T_ = ' '"						+CRLF
+	cQuery += "	WHERE SB1.B1_FILIAL = '"+xFilial("SB1")+"'"									+CRLF
+	cQuery += "	  AND SB1.B1_COD BETWEEN '"+aRet01Param[02]+"' AND '"+aRet01Param[03]+"'"	+CRLF
+	If !Empty(cTipos)
+		cQuery += "	  AND SB1.B1_TIPO IN "+cTipos											+CRLF
+	EndIf
+	cQuery += "	  AND SB1.B1_MSBLQL <> '1'"													+CRLF
+	cQuery += "	  AND SB1.D_E_L_E_T_ = ' '	"												+CRLF
+	cQuery += ") AS TMP"+CRLF
+	If aRet01Param[01]==1
+		cQuery += "WHERE TMP.RECDA1 > 0 AND TMP.RECDA0 > 0" +CRLF
+	EndIf
+	cQuery += " ORDER BY TMP.B1_DESC"														+CRLF
+	MsgRun("Extraindo Tabelas de Preços...","Aguarde",{|| dbUseArea(.T.,"TOPCONN",TcGenQry(,,ChangeQuery(cQuery)),cAlias,.T.,.T.), dbEval({|x| nCount++},,{|| !(cAlias)->(Eof())}) })
+	(cAlias)->(dbGotop())
+
+	_oProcess:SetRegua1(nPrdCount)
+	_oProcess:SetRegua2(nCount)
+
+	Do While (cAlias)->(!Eof())
+		nRegTab++
+		_oProcess:IncRegua2("Obtendo Tab.Preços: "+Alltrim(Str(Round(nRegTab * 100 / nCount,2)))+"%  ["+Alltrim(Str(nRegTab))+"/"+Alltrim(Str(nCount))+"]")
 		
-		aAdd(aDados,{(cAlias)->B1_COD,		; // 01
-					(cAlias)->B1_DESC,		; // 02
-					(cAlias)->B1_TIPO,		; // 03
-					aCusto[01],				; // 04
-					aCusto[02],				; // 05	
-					(cAlias)->B1_XFABRIC,	; // 06
-					(cAlias)->B1_XNOMGRP,	; // 07
-					(cAlias)->B1_XVALID,	; // 08
-					(cAlias)->B1_XVLDAAB,	; // 09
-					{},						; // 10
-					{},						; // 11
-					.T.,					; // 12
-					(cAlias)->RECSB1}		) // 13
+		lConsidera := .T.
+		If aRet01Param[01]==1		
+			lConsidera := (cAlias)->RECDA1 > 0
+		EndIf
 
-		//->> Marcelo Celi - 14/10/2022
-		DA0->(dbSetOrder(1))
-		DA1->(dbSetOrder(2))
-		If DA1->(dbSeek(xFilial("DA1")+(cAlias)->B1_COD)) //.And. DA0->(dbSeek(xFilial("DA0")+DA1->DA1_CODTAB)) .And. DA0->DA0_ATIVO <> "2"
-			Do While DA1->(!Eof()) .And. DA1->(DA1_FILIAL+DA1_CODPRO) == xFilial("DA1")+(cAlias)->B1_COD
-				DA0->(dbSetOrder(1))
-				If DA0->(dbSeek(xFilial("DA0")+DA1->DA1_CODTAB)) .And. DA0->DA0_ATIVO <> "2"
-					
-					//->> Dados da tabela de preco
-					aAdd(aDados[Len(aDados)][10],{	DA0->DA0_CODTAB,; // 01
-													DA0->DA0_DESCRI,; // 02
-													DA1->DA1_ITEM,	; // 03
-													DA1->DA1_CODPRO,; // 04
-													DA1->DA1_PRCVEN,; // 05
-													DA1->DA1_PRCVEN,; // 06
-													DA1->DA1_VLRDES,; // 07
-													DA1->DA1_FRETE,	; // 08
-													DA1->(Recno())}	) // 09	
-					
-					//->> aCols
-					//->> Marcelo Celi - 13/12/2020
-					/*
-					aAdd(aDados[Len(aDados)][11],{	LoadBitmap( GetResources(), If(aCusto[01]<>0,cNoCheck,cNoCheck) ),;	// 01 - Marcacao 
-													DA0->DA0_CODTAB,; 													// 02 - Codigo da Tabela
-													DA0->DA0_DESCRI,; 													// 03 - Descricao da Tabela
-													DA1->DA1_TIPPRE,;													// 04 - Tipo de Preco
-													DA1->DA1_PRCVEN,; 													// 05 - Preco da Tabela
-													0,				; 													// 06 - Simulacao - R$
-													0,				; 													// 07 - % Margem Contribuicao
-													DA1->DA1_XCOMIS,; 													// 08 - % Comissao
-													DA1->DA1_XFRETE,; 													// 09 - % Frete
-													DA1->DA1_XIMPOS,; 													// 10 - % ICMS
-													0,				; 													// 11 - Lucro Operacional - R$
-													0,				; 													// 12 - Lucro Operacional - %
-													DA1->(Recno()),	; 													// 13 - Recno	
-													.F.}			)													// 14
-					*/
-													//DA1->DA1_TIPPRE,;													// 04 - Tipo de Preco
-					aAdd(aDados[Len(aDados)][11],{	LoadBitmap( GetResources(), If(aCusto[01]<>0,cNoCheck,cNoCheck) ),;	// 01 - Marcacao 
-													DA0->DA0_CODTAB,; 													// 02 - Codigo da Tabela
-													DA0->DA0_DESCRI,; 													// 03 - Descricao da Tabela
-													VendasCanal(DA1->DA1_CODPRO,DA0->DA0_CODTAB)  ,;    // QUANTIDADE VENDIDA NO ULTIMO M?
-													DA1->DA1_PRCVEN,; 													// 05 - Preco da Tabela
-													DA1->DA1_PRCVEN,; 													// 06 - Simulacao - R$
-													0,				; 													// 07 - % Margem Contribuicao
-													DA1->DA1_XCOMIS,; 													// 08 - % Comissao
-													DA1->DA1_XFRETE,; 													// 09 - % Frete
-													DA1->DA1_XIMPOS,; 													// 10 - % ICMS
-													DA1->DA1_XDESC,	; 													// 11 - % Desconto Financeiro
-													0,				; 													// 12 - Lucro Operacional - %
-													DA1->(Recno()),	; 													// 13 - Recno	
-													.F.}			)													// 14
+		If lConsidera
+			nPosPrd := Ascan(aDados,{|x| AllTrim(x[1])==Alltrim((cAlias)->B1_COD) })
+			If nPosPrd == 0
+				nRegPrd++
+				_oProcess:IncRegua1("Obtendo Produtos: "+Alltrim(Str(Round(nRegPrd * 100 / nPrdCount,2)))+"%  ["+Alltrim(Str(nRegPrd))+"/"+Alltrim(Str(nPrdCount))+"]")
+				aStCus := U_SumCosts((cAlias)->B1_COD)
+
+				If Len(aStCus[4]) = 0 
+					aCusto := GetCustoPrd((cAlias)->B1_COD)
+				Else 
+					aCUsto := {aStCus[3],dDataBase}   
 				EndIf
-				DA1->(dbSkip())
-			EndDo
+				
+				aAdd(aDados,{(cAlias)->B1_COD,		; // 01
+							(cAlias)->B1_DESC,		; // 02
+							(cAlias)->B1_TIPO,		; // 03
+							aCusto[01],			; // 04
+							aCusto[02],			; // 05	
+							(cAlias)->B1_XFABRIC,	; // 06
+							(cAlias)->B1_XNOMGRP,	; // 07
+							(cAlias)->B1_XVALID,	; // 08
+							(cAlias)->B1_XVLDAAB,	; // 09
+							{},					; // 10
+							{},					; // 11
+							.T.,					; // 12
+							(cAlias)->RECSB1}		) // 13
+				
+				nPosPrd := Len(aDados)
+			EndIf
+
+			If (cAlias)->RECDA1 > 0 .And. (cAlias)->RECDA0 > 0
+				DA0->(dbGoto((cAlias)->RECDA0))
+				DA1->(dbGoto((cAlias)->RECDA1))
+
+				//->> Dados da tabela de preco
+				aAdd(aDados[nPosPrd][10],{	DA0->DA0_CODTAB,; // 01
+											DA0->DA0_DESCRI,; // 02
+											DA1->DA1_ITEM,	; // 03
+											DA1->DA1_CODPRO,; // 04
+											DA1->DA1_PRCVEN,; // 05
+											DA1->DA1_PRCVEN,; // 06
+											DA1->DA1_VLRDES,; // 07
+											DA1->DA1_FRETE,	; // 08
+											DA1->(Recno())}	) // 09	
+
+				aAdd(aDados[nPosPrd][11],{	LoadBitmap( GetResources(), If(aDados[nPosPrd][4]<>0,cNoCheck,cNoCheck) ),;	// 01 - Marcacao 
+											DA0->DA0_CODTAB,; 															// 02 - Codigo da Tabela
+											DA0->DA0_DESCRI,; 															// 03 - Descricao da Tabela
+											(cAlias)->QTDVENDIDO,;  													// 04 - QUANTIDADE VENDIDA NO ULTIMO M?  (VendasCanal(DA1->DA1_CODPRO,DA0->DA0_CODTAB))
+											DA1->DA1_PRCVEN,; 															// 05 - Preco da Tabela
+											DA1->DA1_PRCVEN,; 															// 06 - Simulacao - R$
+											0,				; 															// 07 - % Margem Contribuicao
+											DA1->DA1_XCOMIS,; 															// 08 - % Comissao
+											DA1->DA1_XFRETE,; 															// 09 - % Frete
+											DA1->DA1_XIMPOS,; 															// 10 - % ICMS
+											DA1->DA1_XDESC,	; 															// 11 - % Desconto Financeiro
+											0,				; 															// 12 - Lucro Operacional - %
+											DA1->(Recno()),	; 															// 13 - Recno	
+											.F.}			)															// 14
+			EndIf
 		EndIf
+		(cAlias)->(dbSkip())
+	EndDo
+	(cAlias)->(dbCloseArea())
 
-		If Len(aDados[Len(aDados)][11])==0
-			//->> aCols
-			aAdd(aDados[Len(aDados)][11],{	LoadBitmap( GetResources(), cNoCheck),;	// 01 - Marcacao 
-											"",				; 						// 02 - Codigo da Tabela
-											"",				; 						// 03 - Descricao da Tabela
-											"",				;						// 04 - Tipo de Preco
-											0,				; 						// 05 - Preco da Tabela
-											0,				; 						// 06 - Simulacao - R$
-											0,				; 						// 07 - % Margem Contribuicao
-											DA1->DA1_XCOMIS,; 						// 08 - % Comissao
-											DA1->DA1_XFRETE,; 						// 09 - % Frete
-											DA1->DA1_XIMPOS,; 						// 10 - % ICMS
-											DA1->DA1_XDESC, ; 						// 11 - % Desconto Financeiro
-											0,				; 						// 12 - Lucro Operacional - %
-											0,				; 						// 13 - Recno
-											.F.}			)						// 14
+	For nPosPrd:=1 to Len(aDados)
+		If Len(aDados[nPosPrd][11])==0		
+			aAdd(aDados[nPosPrd][11],{	LoadBitmap( GetResources(), cNoCheck),;	// 01 - Marcacao 
+										"",				; 						// 02 - Codigo da Tabela
+										"",				; 						// 03 - Descricao da Tabela
+										"",				;						// 04 - Tipo de Preco
+										0 ,				; 						// 05 - Preco da Tabela
+										0 ,				; 						// 06 - Simulacao - R$
+										0 ,				; 						// 07 - % Margem Contribuicao
+										0 ,				; 						// 08 - % Comissao
+										0 ,				; 						// 09 - % Frete
+										0 ,				; 						// 10 - % ICMS
+										0 , 			; 						// 11 - % Desconto Financeiro
+										0 ,				; 						// 12 - Lucro Operacional - %
+										0 ,				; 						// 13 - Recno
+										.F.}			)						// 14
 
-			aDados[Len(aDados)][12] := .F.
+			aDados[nPosPrd][12] := .F.
 		Else
-			aDados[Len(aDados)][12] := .T.
+			aDados[nPosPrd][12] := .T.
 		EndIf
-	
+	Next nPosPrd
+
+	If Len(aDados) > 0
+		lOk := .T.
+	Else
+		lOk := .F.
+		MsgAlert("Nao foram localizados Produtos conforme o filtro informado...")
 	EndIf
-
-	(cAlias)->(dbSkip())
-EndDo
-(cAlias)->(dbCloseArea())
-
-If Len(aDados) > 0
-	lOk := .T.
 Else
 	lOk := .F.
-	MsgAlert("Nao foram localizados Produtos conforme o filtro informado...")
 EndIf
 
 Return lOk
@@ -1947,7 +2099,7 @@ cQuery += "					YEAR(SF2.F2_EMISSAO) AS ANO,"											+CRLF
 cQuery += "     ( SELECT C5_TABELA FROM "+RetSqlName("SC5")+ " SC5 (NOLOCK)"                        +CRLF
 cQuery += "       WHERE SC5.C5_FILIAL = '"+xFilial("SC5")+"' "                                      +CRLF
 cQuery += "       AND   SC5.C5_NUM    = SD2.D2_PEDIDO "                                             +CRLF
-cQuery += "       AND   SC5.D_E_L_E_T_ <> '*' ) AS TABPRECO " 
+cQuery += "       AND   SC5.D_E_L_E_T_ <> '*' ) AS TABPRECO " 										+CRLF
 cQuery += "		FROM "+RetSqlName("SD2")+" SD2 (NOLOCK)"											+CRLF
 cQuery += "		  INNER JOIN "+RetSqlName("SF2")+" SF2 (NOLOCK)"									+CRLF
 cQuery += "				  ON SF2.F2_FILIAL  = SD2.D2_FILIAL"										+CRLF
@@ -1957,12 +2109,12 @@ cQuery += "				 AND SF2.F2_TIPO    = 'N'"													+CRLF
 cQuery += "				 AND SF2.F2_EMISSAO BETWEEN '"+Dtos(dDataIni)+"' AND '"+Dtos(dDataFim)+"'"	+CRLF
 cQuery += "				 AND SF2.D_E_L_E_T_ = ' '"													+CRLF
 cQuery += "		WHERE SD2.D2_FILIAL  = '"+xFilial("SD2")+"'"										+CRLF
-cQuery += " 	  AND SD2.D2_COD     = '"+cCodProd+"'"											   +CRLF
+cQuery += " 	  AND SD2.D2_COD     = '"+cCodProd+"'"											    +CRLF
 cQuery += " 	  AND SD2.D_E_L_E_T_ = ' '"															+CRLF
 cQuery += "			  ) AS TMP"																		+CRLF
-cQuery += "     WHERE TMP.TABPRECO = '"+cCodTab+"' "																		+CRLF
+cQuery += "     WHERE TMP.TABPRECO = '"+cCodTab+"' "												+CRLF
 cQuery += "GROUP BY MES, ANO, TABPRECO "     														+CRLF
-cQuery += "ORDER BY ANO, MES, TABPRECO "			// MGOMES 27/03/2021															+CRLF
+cQuery += "ORDER BY ANO, MES, TABPRECO "															+CRLF	// MGOMES 27/03/2021															
 
 DBUseArea( .T., "TOPCONN", TcGenQry( ,,cQuery ), cAlias, .T., .T. )
 
@@ -1972,3 +2124,378 @@ nQtd := (cAlias)->QTDE
 
 RestArea(aArea)
 Return(nQtd)
+
+/*/{protheus.doc} GetTipos
+*******************************************************************************************
+Retorna os Tipos de Produtos a considerar na extração
+ 
+@author: Marcelo Celi Marques
+@since: 25/11/2022
+@param: 
+@return:
+@type function: Estatico
+*******************************************************************************************
+/*/
+Static Function GetTipos(cTpsPadr)
+Local aTipos		As Array
+Local aTipoBack		As Array
+Local aFwSX5		As Array
+
+Local cAlias		As Character
+Local cCad			As Character
+Local cCapital		As Character
+Local cSX5Key		As Character
+Local cVar			As Character
+
+Local lRunDblClick	As Logical
+
+Local nChave		As Numeric
+Local nOpca			As Numeric
+Local nSeleciona	As Numeric
+Local nSX5			As Numeric
+Local nSX5Descri	As Numeric
+Local nSX5Filial	As Numeric
+Local nSX5Key		As Numeric
+Local nTipo			As Numeric
+
+Local oDlg			As Object
+Local oOk			As Object
+Local oNo			As Object
+Local oQual			As Object
+
+Local lSeleciona := .F.
+
+aFwSX5 			:= FwGetSX5("02")
+aTipoBack		:= {}
+aTipos			:= {}
+
+cAlias			:= Alias()
+cCad			:= OemToAnsi("Tipos de Produtos")
+cCapital		:= ""
+cSX5Key			:= ""
+cVar			:= "  "
+
+lRunDblClick	:= .T.
+
+nChave			:= 2
+nOpca			:= 0
+nSeleciona		:= 1
+nSX5			:= 0
+nSX5Descri		:= 4
+nSX5Filial		:= 1
+nSX5Key			:= 3
+nTipo			:= 0
+
+oDlg			:= Nil
+oOk				:= LoadBitmap(GetResources(), "LBOK")
+oNo				:= LoadBitmap(GetResources(), "LBNO")
+oQual			:= Nil
+
+For nSX5 := 1 To Len(aFwSX5)
+	cSX5Key := SubStr(aFwSX5[nSX5][nSX5Key], 1, 2)	
+	cCapital := Capital(AllTrim(aFwSX5[nSX5][nSX5Descri]))
+
+	If cSX5Key $ cTpsPadr
+		lSeleciona := .T.
+	Else
+		lSeleciona := .F.
+	EndIf
+	AAdd(aTipos, {lSeleciona, cSX5Key + " " + IIf(Len(cCapital) > 50, SubStr(cCapital, 1, 50), cCapital + Space(50 - Len(cCapital)))})
+
+Next nSX5
+
+aTipoBack := AClone(aTipos)
+
+nOpca := 0
+
+DEFINE MSDIALOG oDlg TITLE cCad From 9, 0 To 35, 50 OF oMainWnd
+
+@0.5, 0.3 TO 13.6, 20.0 LABEL cCad OF oDlg
+@2.3,3 Say OemToAnsi("  ")
+@1.0,.7 LISTBOX oQual VAR cVar Fields HEADER "", OemToAnsi( "Tipos de Produtos" ) SIZE 150,170 ON DBLCLICK (aTipoBack := FA060Troca(oQual:nAt, aTipoBack), oQual:Refresh()) NOSCROLL
+oQual:SetArray(aTipoBack)
+oQual:bLine := {|| {If(aTipoBack[oQual:nAt][1], oOk, oNo), aTipoBack[oQual:nAt][2]}}
+oQual:bHeaderClick := {|oObj, nCol| If(lRunDblClick .And. nCol == 1, AEval(aTipoBack, {|e| e[1] := !e[1]}), Nil), lRunDblClick := !lRunDblClick, oQual:Refresh()}
+
+DEFINE SBUTTON FROM 10  , 166  TYPE 1 ACTION (nOpca := 1, oDlg:End()) ENABLE OF oDlg
+DEFINE SBUTTON FROM 22.5, 166  TYPE 2 ACTION (nOpca := 0, oDlg:End()) ENABLE OF oDlg
+
+ACTIVATE MSDIALOG oDlg CENTERED
+
+If nOpca == 1
+	FwFreeArray(aTipos)
+	aTipos := AClone(aTipoBack)
+	//Monta a string de tipos para filtrar o arquivo
+	cTipos := ""
+	For nTipo := 1 To Len(aTipos)
+		If aTipos[nTipo][nSeleciona]
+			If !Empty(cTipos)
+				cTipos += "/"
+			EndIf
+			cTipos += SubStr(aTipos[nTipo][nChave], 1, 2)
+		EndIf
+	Next nTipo
+EndIf
+
+FreeObj(oOk)
+FreeObj(oNo)
+
+FwFreeArray(aTipos)
+FwFreeArray(aTipoBack)
+FwFreeArray(aFwSX5)
+
+DbSelectArea(cAlias)
+
+Return nOpca > 0
+
+/*/{protheus.doc} BoJbFecPrc
+*******************************************************************************************
+Job de Fechamento mensal de preços.
+ 
+@author: Marcelo Celi Marques
+@since: 25/11/2022
+@param: 
+@return:
+@type function: Usuario
+*******************************************************************************************
+/*/
+User Function BoJbFecPrc(cEmp, cFil, cNickName)
+Local nCusto	:= 0
+Local nX        := 1
+Local nY        := 1
+Local aDados	:= {}
+Local lUsarRot  := .F.
+Local lJob		:= .F.
+Local aArea	    := {}
+
+Default cNickName 	:= ""
+Default cEmp        := _cEmp
+Default cFil        := _cFil
+
+Private aRet01Param := {}
+Private aProdutos   := {}
+
+If !Empty(cNickName)    
+    lUsarRot := LockByName(cNickName,.F.,.F.)
+Else
+    lUsarRot  := .T.   
+EndIf
+
+If lUsarRot    
+    lJob := Select( "SM0" ) <= 0
+    If lJob
+        RpcSetType(3)
+        PREPARE ENVIRONMENT EMPRESA cEmp FILIAL cFil
+	Else
+		aArea := GetArea()
+	EndIf
+
+	SM0->(dbSetOrder(1))
+	SM0->(dbSeek(cEmpAnt+cFilAnt))
+
+	If AliasInDic("ZTP")
+		aAdd( aRet01Param, 1									)
+		aAdd( aRet01Param, Replicate(" ",Tamsx3("B1_COD")[01])	)
+		aAdd( aRet01Param, Replicate("Z",Tamsx3("B1_COD")[01])	)
+		aAdd( aRet01Param, 0									)
+		aAdd( aRet01Param, 0									)
+		aAdd( aRet01Param, "0"									)
+
+		GetProdutos(@aDados)
+		aProdutos := aDados
+
+		//->> Marcelo Celi - 13/12/2020 - Ajusto do CMV e da margem de contribuicao
+		For nX:=1 to Len(aProdutos)
+			nCusto := aProdutos[nX,04]
+			For nY:=1 to Len(aProdutos[nX,11])
+				aProdutos[nX,11][nY,07] := Round((nCusto / aProdutos[nX,11][nY,06]) * 100,4)
+				aProdutos[nX,11][nY,012] := Round(100 - aProdutos[nX,11][nY,07] - aProdutos[nX,11][nY,08] - aProdutos[nX,11][nY,09] - aProdutos[nX,11][nY,10] - aProdutos[nX,11][nY,11],2)
+			Next nY
+			// Ordenando pela margem de contribui?
+			aSort(aProdutos[nX,11], , , { | x,y | x[12] < y[12] } )
+		Next nX
+
+
+	EndIf
+
+
+EndIf
+
+If lJob
+	RESET ENVIRONMENT
+Else    
+	RestArea(aArea)	
+	SM0->(dbSetOrder(1))
+	SM0->(dbSeek(cEmpAnt+cFilAnt))
+EndIf
+If !Empty(cNickName)	
+	UnLockByName(cNickName,.F.,.F.)
+EndIf    
+
+Return
+
+/*/ backup da função
+Static Function GetProdutos(aDados)
+Local lOk	 	:= .F.
+Local cQuery 	:= ""
+Local cAlias 	:= GetNextAlias()
+Local aCusto 	:= {}	
+Local lConsidera:= .F.
+Local cTpsPadr	:= Alltrim(Upper(GetNewPar("BO_TPPRDPD","ME/PA")))
+
+aDados := {}
+
+Private cTipos := ""
+
+GetTipos(cTpsPadr)
+
+If !Empty(cTipos)
+	cTipos := FormatIn(cTipos,"/")
+EndIf
+
+cQuery := "SELECT SB1.B1_COD,"															+CRLF
+cQuery += "		  SB1.B1_DESC,"															+CRLF
+cQuery += "		  SB1.B1_TIPO,"															+CRLF
+cQuery += "		  SB1.B1_XFABRIC,"														+CRLF
+cQuery += "		  SB1.B1_XNOMGRP,"														+CRLF
+cQuery += "		  SB1.B1_XVALID,"														+CRLF
+cQuery += "		  SB1.B1_XVLDAAB,"														+CRLF
+cQuery += "		  SB1.R_E_C_N_O_ AS RECSB1"												+CRLF
+cQuery += "	FROM "+RetSqlName("SB1")+" SB1 (NOLOCK)"									+CRLF
+cQuery += "	WHERE SB1.B1_FILIAL = '"+xFilial("SB1")+"'"									+CRLF
+cQuery += "	  AND SB1.B1_COD BETWEEN '"+aRet01Param[02]+"' AND '"+aRet01Param[03]+"'"	+CRLF
+
+If !Empty(cTipos)
+	cQuery += "	  AND SB1.B1_TIPO IN "+cTipos											+CRLF
+EndIf
+
+cQuery += "	  AND SB1.D_E_L_E_T_ = ' '	"												+CRLF
+cQuery += " ORDER BY SB1.B1_DESC"														+CRLF
+
+dbUseArea(.T.,"TOPCONN",TcGenQry(,,ChangeQuery(cQuery)),cAlias,.T.,.T.)
+Do While (cAlias)->(!Eof())
+	lConsidera := .T.
+	If aRet01Param[01]==1
+		DA1->(dbSetOrder(2))
+		lConsidera := DA1->(dbSeek(xFilial("DA1")+(cAlias)->B1_COD))
+	EndIf
+
+	If lConsidera
+
+        aStCus := U_SumCosts((cAlias)->B1_COD)
+
+		if Len(aStCus[4]) = 0 
+		   aCusto := GetCustoPrd((cAlias)->B1_COD)
+		else 
+		   aCUsto := {aStCus[3],dDataBase}   
+        endif
+		
+		aAdd(aDados,{(cAlias)->B1_COD,		; // 01
+					(cAlias)->B1_DESC,		; // 02
+					(cAlias)->B1_TIPO,		; // 03
+					aCusto[01],				; // 04
+					aCusto[02],				; // 05	
+					(cAlias)->B1_XFABRIC,	; // 06
+					(cAlias)->B1_XNOMGRP,	; // 07
+					(cAlias)->B1_XVALID,	; // 08
+					(cAlias)->B1_XVLDAAB,	; // 09
+					{},						; // 10
+					{},						; // 11
+					.T.,					; // 12
+					(cAlias)->RECSB1}		) // 13
+
+		//->> Marcelo Celi - 14/10/2022
+		DA0->(dbSetOrder(1))
+		DA1->(dbSetOrder(2))
+		If DA1->(dbSeek(xFilial("DA1")+(cAlias)->B1_COD)) //.And. DA0->(dbSeek(xFilial("DA0")+DA1->DA1_CODTAB)) .And. DA0->DA0_ATIVO <> "2"
+			Do While DA1->(!Eof()) .And. DA1->(DA1_FILIAL+DA1_CODPRO) == xFilial("DA1")+(cAlias)->B1_COD
+				DA0->(dbSetOrder(1))
+				If DA0->(dbSeek(xFilial("DA0")+DA1->DA1_CODTAB)) .And. DA0->DA0_ATIVO <> "2"
+					
+					//->> Dados da tabela de preco
+					aAdd(aDados[Len(aDados)][10],{	DA0->DA0_CODTAB,; // 01
+													DA0->DA0_DESCRI,; // 02
+													DA1->DA1_ITEM,	; // 03
+													DA1->DA1_CODPRO,; // 04
+													DA1->DA1_PRCVEN,; // 05
+													DA1->DA1_PRCVEN,; // 06
+													DA1->DA1_VLRDES,; // 07
+													DA1->DA1_FRETE,	; // 08
+													DA1->(Recno())}	) // 09	
+					
+					//->> aCols
+					//->> Marcelo Celi - 13/12/2020
+					
+//					aAdd(aDados[Len(aDados)][11],{	LoadBitmap( GetResources(), If(aCusto[01]<>0,cNoCheck,cNoCheck) ),;	// 01 - Marcacao 
+//													DA0->DA0_CODTAB,; 													// 02 - Codigo da Tabela
+//													DA0->DA0_DESCRI,; 													// 03 - Descricao da Tabela
+//													DA1->DA1_TIPPRE,;													// 04 - Tipo de Preco
+//													DA1->DA1_PRCVEN,; 													// 05 - Preco da Tabela
+//													0,				; 													// 06 - Simulacao - R$
+//													0,				; 													// 07 - % Margem Contribuicao
+//													DA1->DA1_XCOMIS,; 													// 08 - % Comissao
+//													DA1->DA1_XFRETE,; 													// 09 - % Frete
+//													DA1->DA1_XIMPOS,; 													// 10 - % ICMS
+//													0,				; 													// 11 - Lucro Operacional - R$
+//													0,				; 													// 12 - Lucro Operacional - %
+//													DA1->(Recno()),	; 													// 13 - Recno	
+//													.F.}			)													// 14
+					
+													//DA1->DA1_TIPPRE,;													// 04 - Tipo de Preco
+					aAdd(aDados[Len(aDados)][11],{	LoadBitmap( GetResources(), If(aCusto[01]<>0,cNoCheck,cNoCheck) ),;	// 01 - Marcacao 
+													DA0->DA0_CODTAB,; 													// 02 - Codigo da Tabela
+													DA0->DA0_DESCRI,; 													// 03 - Descricao da Tabela
+													VendasCanal(DA1->DA1_CODPRO,DA0->DA0_CODTAB)  ,;    // QUANTIDADE VENDIDA NO ULTIMO M?
+													DA1->DA1_PRCVEN,; 													// 05 - Preco da Tabela
+													DA1->DA1_PRCVEN,; 													// 06 - Simulacao - R$
+													0,				; 													// 07 - % Margem Contribuicao
+													DA1->DA1_XCOMIS,; 													// 08 - % Comissao
+													DA1->DA1_XFRETE,; 													// 09 - % Frete
+													DA1->DA1_XIMPOS,; 													// 10 - % ICMS
+													DA1->DA1_XDESC,	; 													// 11 - % Desconto Financeiro
+													0,				; 													// 12 - Lucro Operacional - %
+													DA1->(Recno()),	; 													// 13 - Recno	
+													.F.}			)													// 14
+				EndIf
+				DA1->(dbSkip())
+			EndDo
+		EndIf
+
+		If Len(aDados[Len(aDados)][11])==0
+			//->> aCols
+			aAdd(aDados[Len(aDados)][11],{	LoadBitmap( GetResources(), cNoCheck),;	// 01 - Marcacao 
+											"",				; 						// 02 - Codigo da Tabela
+											"",				; 						// 03 - Descricao da Tabela
+											"",				;						// 04 - Tipo de Preco
+											0,				; 						// 05 - Preco da Tabela
+											0,				; 						// 06 - Simulacao - R$
+											0,				; 						// 07 - % Margem Contribuicao
+											DA1->DA1_XCOMIS,; 						// 08 - % Comissao
+											DA1->DA1_XFRETE,; 						// 09 - % Frete
+											DA1->DA1_XIMPOS,; 						// 10 - % ICMS
+											DA1->DA1_XDESC, ; 						// 11 - % Desconto Financeiro
+											0,				; 						// 12 - Lucro Operacional - %
+											0,				; 						// 13 - Recno
+											.F.}			)						// 14
+
+			aDados[Len(aDados)][12] := .F.
+		Else
+			aDados[Len(aDados)][12] := .T.
+		EndIf
+	
+	EndIf
+
+	(cAlias)->(dbSkip())
+EndDo
+(cAlias)->(dbCloseArea())
+
+If Len(aDados) > 0
+	lOk := .T.
+Else
+	lOk := .F.
+	MsgAlert("Nao foram localizados Produtos conforme o filtro informado...")
+EndIf
+
+Return lOk
+/*/
+
