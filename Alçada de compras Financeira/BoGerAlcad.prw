@@ -1,4 +1,5 @@
-# Include "Protheus.ch"
+#INCLUDE "TOTVS.CH"
+#INCLUDE "ApWizard.ch"
 
 /*/{protheus.doc} MT120FIM
 *******************************************************************************************
@@ -24,7 +25,9 @@ Local cNumPed   := SC7->C7_NUM
 //        u_BOGrvAlcPC()
 //    End Transaction
 
-    If  FindFunction("u_BoGeC5byC7") .and. (nOpc == 3 .or. nopc == 9) // adicionado a opcao de copia 05-12-2022 kassio
+  // Marcelo Celi - 14/09/2022  
+  //If  FindFunction("u_BoGeC5byC7") .and. nOpc == 3
+    If  FindFunction("u_BoGeC5byC7") .and. (nOpc == 3 .Or. nOpc==9).And. nOpcA == 1 
         u_BoGeC5byC7(cFilPed,cNumPed)
     EndIf
 //EndIf
