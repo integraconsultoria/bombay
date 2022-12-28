@@ -1,5 +1,9 @@
 #INCLUDE "TOTVS.CH"
 #INCLUDE "ApWizard.ch"
+#include 'rwmake.ch'
+#include 'protheus.ch'
+#INCLUDE "TOPCONN.CH"
+#INCLUDE "TBICONN.CH"
 
 /*/{protheus.doc} BoGeC5byC7
 *******************************************************************************************
@@ -89,6 +93,10 @@ Local nVlrUnit  := 0
 Local nVlrTota  := 0
 Local cChave    := SC7->(C7_FILIAL+C7_NUM)
 
+//->> Marcelo Celi - 05/12/2022
+Local lExecByJob:= Alltrim(Upper(GetNewPar("BO_C7C5JOB","S")))=="S"
+Local aRet      := {.F.,""}
+
 Private lMsErroAuto := .F.
 
 //->> Declaração de publicas que serao utilizadas na rotina
@@ -171,17 +179,22 @@ If !Empty(cCliente) .And. !Empty(cLojaCli)
                 aAdd(aItem,{"C6_QTDVEN"		,aProdutos[nX,04]  		,Nil} )                    
                 aAdd(aItem,{"C6_PRCVEN"		,nVlrUnit               ,Nil} )
                 aAdd(aItem,{"C6_PRUNIT"		,nVlrUnit               ,Nil} )                                
-                aAdd(aItem,{"C6_VALOR"		,nVlrTota 	            ,Nil} )
-            //  aAdd(aItem,{"C6_TES"		,SF4->F4_CODIGO	        ,Nil} )  // Alterado - Flavio 18/08/21
-                aAdd(aItem,{"C6_OPER"		,"01"       	        ,Nil} )
+                aAdd(aItem,{"C6_VALOR"		,nVlrTota 	            ,Nil} )            
                 aAdd(aItem,{"C6_DESCRI"     ,SB1->B1_DESC 			,Nil} )
                 aAdd(aItem,{"C6_ENTREG"     ,dDatabase  			,Nil} )
                 aAdd(aItem,{"C6_UM"         ,SB1->B1_UM				,Nil} )                    
                 aAdd(aItem,{"C6_LOCAL"      ,SB1->B1_LOCPAD			,Nil} )                    
                 aAdd(aItem,{"C6_SEGUM"      ,SB1->B1_SEGUM	        ,Nil} )                    
                 aAdd(aItem,{"C6_UNSVEN"     ,nVlr2Unid  	        ,Nil} )
+
+               // If !Empty(cTesSaida)
+               //     aAdd(aItem,{"C6_TES"	,cTesSaida  	        ,Nil} )
+               // Else
+                    aAdd(aItem,{"C6_OPER"	,"01"       	        ,Nil} )
+               // EndIf
+
             Else
-                MsgAlert("TES "+cTesSaida+" não localizada, ou não é de saida ou bloqueada... ")
+                MsgAlert("TES "+cTesSaida+" não localizada, ou não é de saida ou bloqueada..."+CRLF+"Favor verificar o produto: "+Alltrim(SB1->B1_COD)+" e as suas regras fiscais.")
                 aSC5 := {}
                 aSC6 := {}
                 Exit
@@ -200,18 +213,28 @@ If Len(aSC5)>0 .And. Len(aSC6)>0
     Begin Transaction
         //->> Geração do Pedido de Vendas
         If lContinua
-            cFilAnt := cFilPV
-            lMsErroAuto := .F.
-            MSExecAuto({|a, b, c, d| MATA410(a, b, c, d)}, aSC5, aSC6, 3, .F.)
-            If lMsErroAuto
-                lContinua := .F.
-                If MsgYesNo("Ocorreram erros na geração do pedido de vendas da replicação da filial."+CRLF+"Deseja visualizar o erro ?")
-                    MostraErro()
-                EndIf    
+            cFilAnt := cFilPV            
+            If lExecByJob
+                aRet := StartJob("U_BoExM410Jb",GetEnvServer(),.T.,{cEmpAnt,cFilAnt,aSC5,aSC6,.T.})
             Else
-                lContinua := .T.
-                MsgAlert("Pedido de Vendas "+SC5->C5_NUM+" gerado com sucesso na filial "+cFilPV+".")
+                aRet := U_BoExM410Jb({cEmpAnt,cFilAnt,aSC5,aSC6,.F.})
             EndIf
+            If Valtype(aRet)=="A"                
+                If !aRet[1]
+                    lContinua := .F.
+                    If lExecByJob
+                        If MsgYesNo("Ocorreram erros na geração do pedido de vendas da replicação da filial."+CRLF+"Deseja visualizar o erro ?")
+                            MsgAlert(aRet[2])
+                        EndIf
+                    EndIf
+                Else
+                    lContinua := .T.
+                    MsgAlert("Pedido de Vendas "+aRet[3]+" gerado com sucesso na filial "+cFilPV+".")
+                EndIf
+            Else
+                lContinua := .F.
+                MsgAlert("Erros ocorreram na geração do pedido de vendas na filial "+cFilPV+".")
+            EndIf            
         EndIf
 
         //->> Desarmar a transação se ocorreram erros
@@ -223,6 +246,98 @@ If Len(aSC5)>0 .And. Len(aSC6)>0
 EndIf
 
 Return
+
+/*/{protheus.doc} BoExM410Jb
+*******************************************************************************************
+Execução do Mata140 em outra thread
+ 
+@author: Marcelo Celi Marques
+@since: 05/12/2022
+@param: 
+@return:
+@type function: Usuario
+*******************************************************************************************
+/*/
+User Function BoExM410Jb(aDados)
+Local aRet    := {.F.,"",""}
+Local cEmp    := aDados[01]
+Local cFil    := aDados[02]
+Local aCab    := aDados[03]
+Local aItens  := aDados[04]
+Local lJob    := aDados[05]  
+Local aTables := {}
+Local cNumPed := ""
+Local nY      := 1  
+Local aLog    := {}
+Local cErro   := ""
+Local lRet    := .F.
+Local cLog    := ""  
+
+Private lMSErroAuto     := .F.
+Private lMsHelpAuto		:= .T.
+Private lAutoErrNoFile 	:= .T. 
+
+//->> Declaração de publicas que serao utilizadas na rotina
+Public p__cUM  := ""
+Public p__lUM  := .F.
+
+If lJob
+    aAdd( aTables, "SC5" )
+    aAdd( aTables, "SC6" )
+    aAdd( aTables, "SB1" )
+    aAdd( aTables, "SA1" )
+    aAdd( aTables, "SF4" )
+
+    RPCClearEnv()
+    RPCSetType(3)
+    RPCSetEnv( cEmp, cFil,,,,, aTables )
+Else
+    cFilAnt := cFil
+EndIf
+
+SC5->(dbSetOrder(1))
+cNumPed:=GetSXENum("SC5","C5_NUM")
+Do While SC5->(dbSeek(xFilial("SC5")+cNumPed))
+    ConfirmSX8()
+    cNumPed:=GetSXENum("SC5","C5_NUM")
+EndDo
+cNumPed := ""
+
+//->> Dar rollback na numeração automatica, do ultimo numero gerado, para considerar o do inicializador padrão da sc5.
+RollBackSx8()
+
+MSExecAuto({|a,b,c,d| Mata410(a,b,c,d)},aCab,aItens,3,.F.)
+
+If lMsErroAuto    
+    cErro := "Erro na chamado do MATA410 - Gerando C5 BY C7: "
+    aLog  := GetAutoGRLog()
+    For nY := 1 To Len(aLog)
+        If !Empty(cErro)
+            cErro += CRLF
+        EndIf
+        cErro += " -> " + aLog[nY]
+    Next nY    
+    cLog += cErro
+    
+    If !lJob
+        If MsgYesNo("Ocorreram erros na geração do pedido de vendas da replicação da filial."+CRLF+"Deseja visualizar o erro ?")
+            MostraErro()
+        EndIf
+    EndIf            
+    lRet:=.F.    
+Else    
+    cNumPed:=SC5->C5_NUM
+    lRet:=.T.
+    cLog += "Gerado com sucesso sob numero: "+cNumPed
+Endif
+
+aRet := {lRet,cLog,cNumPed}
+
+If lJob
+    RESET ENVIRONMENT
+EndIf
+
+Return aRet
 
 /*/{protheus.doc} BoGetVCust
 *******************************************************************************************
