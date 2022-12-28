@@ -702,6 +702,7 @@ If u_MaEcIniVar()
                                     If Empty(cTes)
                                         cTes := (Tb_Ecomm)->&(Tb_Ecomm+"_TESBRI")
                                     EndIf
+                                    
                                     //->> Marcelo Celi - 28/09/2022                                    
                                     //nVlrDesc := 0
                                     //nPrcLista:= 0
@@ -764,7 +765,7 @@ If u_MaEcIniVar()
                         aItens := Execblock("PEINALTECO",.F.,.F.,{aTabelas,FilEcomm,Armazem,aItens})
                     EndIf
 
-                    Begin Transaction
+                //  Begin Transaction
                         lMSErroAuto     := .F.
                         lMsHelpAuto		:= .T.
                         lAutoErrNoFile 	:= .T. 
@@ -779,7 +780,7 @@ If u_MaEcIniVar()
                                     Exit
                                 EndIf		
                             Next nX
-                            DisarmTransaction()
+                     //     DisarmTransaction()
                             lErro := .T.
                             lRet  := .F.
                         Else
@@ -800,7 +801,7 @@ If u_MaEcIniVar()
                             If (Tb_Ecomm)->&(Tb_Ecomm+"_GERPV")=="S" .Or. lMercLivre
                                 //->> Marcelo Celi - 21/03/2022
                                 //cNumPV := u_MaEcPedido(SCJ->CJ_NUM,aTabelas)
-                                cNumPV := u_MaEcPedido(SCJ->CJ_NUM,aTabelas,cOrigem,cNewId)
+                                cNumPV := u_MaEcPedido(SCJ->CJ_NUM,aTabelas,cOrigem,cNewId,lMercLivre)
                                 cXmlBySite := ""
 
                                 If !Empty(cNumPV)
@@ -840,7 +841,7 @@ If u_MaEcIniVar()
                                 EndIf
                             EndIf
                         EndIf
-                    End Transaction    
+                  //End Transaction    
                 Else
                     lErro := .T.
                     lRet  := .F.
@@ -919,8 +920,9 @@ Cria o pedido de vendas
 @type function: Usuario
 *******************************************************************************************
 /*/
-User Function MaEcPedido(cOrcamento,aTabelas,cOrigem,cIdIntegr)
+User Function MaEcPedido(cOrcamento,aTabelas,cOrigem,cIdIntegr,lMercLivre)
 Local aArea         := GetArea()
+Local aAreaSC9      := SC9->(GetARea())
 Local aAreaSC0      := SC0->(GetARea())
 Local aAreaSCJ      := SCJ->(GetARea())
 Local aAreaSCK      := SCK->(GetARea())
@@ -939,6 +941,7 @@ Local nOrdSC5       := SC5->(IndexOrd())
 
 Default cOrigem     := ""
 Default cIdIntegr   := ""
+Default lMercLivre  := .F.
 
 cOrigem   := PadR(cOrigem,Tamsx3("C5_XORIGEM")[01])
 cIdIntegr := PadR(cIdIntegr,Tamsx3("C5_XIDINTG")[01])
@@ -1006,21 +1009,21 @@ Else
             SB1->(dbSetOrder(1))
             SB1->(dbSeek(xFilial("SB1")+SCK->CK_PRODUTO))
         
-            aItemPV:={ {"C6_NUM"    ,cNumPed                    ,Nil            , Posicione("SX3",2,"C6_NUM"        ,"X3_ORDEM")},;
-                    {"C6_ITEM"   ,SCK->CK_ITEM	            ,Nil            , Posicione("SX3",2,"C6_ITEM"       ,"X3_ORDEM")},;
-                    {"C6_PRODUTO",SCK->CK_PRODUTO            ,Nil            , Posicione("SX3",2,"C6_PRODUTO"    ,"X3_ORDEM")},;
-                    {"C6_QTDVEN" ,SCK->CK_QTDVEN             ,Nil            , Posicione("SX3",2,"C6_QTDVEN"     ,"X3_ORDEM")},;
-                    {"C6_QTDLIB" ,SCK->CK_QTDVEN             ,Nil            , Posicione("SX3",2,"C6_QTDLIB"     ,"X3_ORDEM")},;
-                    {"C6_PRUNIT" ,SCK->CK_PRUNIT             ,Nil            , Posicione("SX3",2,"C6_PRUNIT"     ,"X3_ORDEM")},;
-                    {"C6_ENTREG" ,SCK->CK_ENTREG             ,Nil            , Posicione("SX3",2,"C6_ENTREG"     ,"X3_ORDEM")},;
-                    {"C6_UM"     ,SB1->B1_UM                 ,Nil            , Posicione("SX3",2,"C6_UM"         ,"X3_ORDEM")},;
-                    {"C6_TES"    ,SCK->CK_TES                ,Nil            , Posicione("SX3",2,"C6_TES"        ,"X3_ORDEM")},;
-                    {"C6_LOCAL"  ,SCK->CK_LOCAL              ,Nil            , Posicione("SX3",2,"C6_LOCAL"      ,"X3_ORDEM")},;                   
-                    {"C6_PRCVEN" ,SCK->CK_PRCVEN             ,Nil            , Posicione("SX3",2,"C6_PRCVEN"     ,"X3_ORDEM")},;                   
-                    {"C6_COMIS1" ,SCK->CK_COMIS1             ,Nil            , Posicione("SX3",2,"C6_COMIS1"     ,"X3_ORDEM")},;
-                    {"C6_CLI"    ,SCK->CK_CLIENTE            ,Nil            , Posicione("SX3",2,"C6_CLI"        ,"X3_ORDEM")},;
-                    {"C6_LOJA"   ,SCK->CK_LOJA               ,Nil            , Posicione("SX3",2,"C6_LOJA"       ,"X3_ORDEM")},;
-                    {"C6_NUMORC" ,SCK->CK_NUM + SCK->CK_ITEM ,"AllWaysTrue()", Posicione("SX3",2,"C6_NUMORC"     ,"X3_ORDEM")}}
+            aItemPV:={  {"C6_NUM"    ,cNumPed                    ,Nil            , Posicione("SX3",2,"C6_NUM"        ,"X3_ORDEM")},;
+                        {"C6_ITEM"   ,SCK->CK_ITEM	             ,Nil            , Posicione("SX3",2,"C6_ITEM"       ,"X3_ORDEM")},;
+                        {"C6_PRODUTO",SCK->CK_PRODUTO            ,Nil            , Posicione("SX3",2,"C6_PRODUTO"    ,"X3_ORDEM")},;
+                        {"C6_QTDVEN" ,SCK->CK_QTDVEN             ,Nil            , Posicione("SX3",2,"C6_QTDVEN"     ,"X3_ORDEM")},;
+                        {"C6_QTDLIB" ,SCK->CK_QTDVEN             ,Nil            , Posicione("SX3",2,"C6_QTDLIB"     ,"X3_ORDEM")},;
+                        {"C6_PRUNIT" ,SCK->CK_PRUNIT             ,Nil            , Posicione("SX3",2,"C6_PRUNIT"     ,"X3_ORDEM")},;
+                        {"C6_ENTREG" ,SCK->CK_ENTREG             ,Nil            , Posicione("SX3",2,"C6_ENTREG"     ,"X3_ORDEM")},;
+                        {"C6_UM"     ,SB1->B1_UM                 ,Nil            , Posicione("SX3",2,"C6_UM"         ,"X3_ORDEM")},;
+                        {"C6_TES"    ,SCK->CK_TES                ,Nil            , Posicione("SX3",2,"C6_TES"        ,"X3_ORDEM")},;
+                        {"C6_LOCAL"  ,SCK->CK_LOCAL              ,Nil            , Posicione("SX3",2,"C6_LOCAL"      ,"X3_ORDEM")},;                   
+                        {"C6_PRCVEN" ,SCK->CK_PRCVEN             ,Nil            , Posicione("SX3",2,"C6_PRCVEN"     ,"X3_ORDEM")},;                   
+                        {"C6_COMIS1" ,SCK->CK_COMIS1             ,Nil            , Posicione("SX3",2,"C6_COMIS1"     ,"X3_ORDEM")},;
+                        {"C6_CLI"    ,SCK->CK_CLIENTE            ,Nil            , Posicione("SX3",2,"C6_CLI"        ,"X3_ORDEM")},;
+                        {"C6_LOJA"   ,SCK->CK_LOJA               ,Nil            , Posicione("SX3",2,"C6_LOJA"       ,"X3_ORDEM")},;
+                        {"C6_NUMORC" ,SCK->CK_NUM + SCK->CK_ITEM ,"AllWaysTrue()", Posicione("SX3",2,"C6_NUMORC"     ,"X3_ORDEM")}}
     
             //->> Marcelo Celi - 16/09/2022
             If SCK->CK_DESCONT > 0
@@ -1074,6 +1077,21 @@ Else
                     SCK->CK_NUMPV := cNumPed
                     SCK->(MsUnlock())
                 Next nX
+
+                //->> Faz a liberação automatica do credito e estoque de pedidos oriundos do mercado livre.
+                If lMercLivre .And. !Empty(cNumPed)
+                    SC9->(dbSetOrder(1))
+                    SC9->(dbSeek(xFilial("SC9")+cNumPed))
+                    Do While SC9->(!Eof()) .And. SC9->(C9_FILIAL+C9_PEDIDO) == xFilial("SC9")+cNumPed
+                        If Empty(SC9->C9_NFISCAL)
+                            RecLock("SC9",.F.)
+                            SC9->C9_BLCRED := ""
+                            SC9->C9_BLEST  := ""
+                            SC9->(MsUnlock())
+                        EndIf
+                        SC9->(dbSkip())
+                    EndDo
+                EndIf
             EndIf
         EndIf    
     EndIf
@@ -1083,6 +1101,7 @@ SC5->(dbSetOrder(nOrdSC5))
 SCK->(RestArea(aAreaSCK))
 SCJ->(RestArea(aAreaSCJ))
 SC0->(RestArea(aAreaSC0))
+SC9->(RestArea(aAreaSC9))
 RestArea(aArea)
 
 Return cNumPed
