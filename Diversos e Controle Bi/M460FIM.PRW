@@ -75,6 +75,13 @@ IF TRB->( !EOF () )
 				IF stod(TRB->F6_DTARREC) == SE2->E2_EMISSAO
 					RECLOCK("SE2",.F.)
 						SE2->E2_XNFORI := TRB->F6_DOC +"  " + TRB->F6_SERIE
+
+						//->>Marcelo Celi - 27/10/2022
+						If Alltrim(SE2->E2_TIPO)=="TX" .And. Alltrim(SE2->E2_PREFIXO)=="ICM" .And. Alltrim(SE2->E2_NATUREZ)=="ICMS"
+							SE2->E2_VENCTO  := SE2->E2_EMISSAO
+							SE2->E2_VENCREA := DataValida(SE2->E2_VENCTO,.T.)
+						EndIf
+
 					MSUNLOCK()
 				ENDIF
 			ENDIF
