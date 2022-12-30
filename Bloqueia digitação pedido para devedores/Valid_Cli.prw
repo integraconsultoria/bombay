@@ -13,7 +13,7 @@
 @version All versions
 /*/
 //-------------------------------------------------------------------
-//
+
 User Function Valid_Cli()
 
 Local aArea        := GetArea()
