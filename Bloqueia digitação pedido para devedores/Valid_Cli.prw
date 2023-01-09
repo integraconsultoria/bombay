@@ -13,7 +13,7 @@
 @version All versions
 /*/
 //-------------------------------------------------------------------
-//Kassio 09/01/2023
+
 User Function Valid_Cli()
 
 Local aArea        := GetArea()
