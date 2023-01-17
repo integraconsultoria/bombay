@@ -10,8 +10,8 @@
 @author  Ronaldo Carvalho
 @type	 User Function
 @since   05/06/2019
-@version All versions
-/*/
+@version All versions Andre
+/*/ 
 //-------------------------------------------------------------------
 
 User Function Valid_Cli()
