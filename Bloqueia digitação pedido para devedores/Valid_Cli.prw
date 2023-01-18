@@ -10,7 +10,7 @@
 @author  Ronaldo Carvalho
 @type	 User Function
 @since   05/06/2019
-@version All versions Andre
+@version All versions
 /*/ 
 //-------------------------------------------------------------------
 
