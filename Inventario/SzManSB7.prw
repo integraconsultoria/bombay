@@ -21,7 +21,7 @@ User Function SzManSB7()
 Local cTexto	:= ""
 Local oWizard, oTexto, oTimer
 Local aParambox := {}
-
+//andre
 Private aTipo 		:= {"Substituir Inventario","Acumular Inventário","Zerar Inventario","Limpar Inventario"}
 Private aRetParam 	:= {}
 Private cEdtP04	  	:= ".T."
