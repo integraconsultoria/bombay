@@ -2200,20 +2200,62 @@ Local aValImps 	 := RetImp()
 //->>Marcelo Celi - 14/10/2022
 Local _nDescFin  := 0
 
+Local nSaldoTit  := 0
+Local nDesconto  := 0
+Local nJuros     := 0
+Local aAreaSE1   := SE1->(GetArea())
+
 _nVlrAbat  := 0 // SomaAbat(SE1->E1_PREFIXO,SE1->E1_NUM,SE1->E1_PARCELA,"R",1,,SE1->E1_CLIENTE,SE1->E1_LOJA)
-//QUANDO FOR BOLETO ITAU TIRA O VALOR DO DESCONTO COMERCIAL - paulo esta mexendo
-/*
-If  aRet01Param[02] == "341" 
-	_nVlrBolet := SE1->(E1_VALOR-((E1_VALOR*E1_DESCFIN)/100))
-	_nVlrBolet := (_nVlrBolet - _nVlrAbat + SE1->E1_ACRESC - SE1->E1_DECRESC)
-Else
-*/
-	//->>Marcelo Celi - 14/10/2022
-    _nDescFin := Round(SE1->E1_SALDO * (SE1->E1_DESCFIN/100),2)
-    _nVlrBolet := (SE1->E1_SALDO - _nVlrAbat + SE1->E1_ACRESC - SE1->E1_DECRESC - _nDescFin)
-//EndIf
+
+//->> Garantir que não despocionou ao usar a função SomaAbat
+SE1->(RestArea(aAreaSE1))
+
+nJuros := fa070Juros(SE1->E1_MOEDA,SE1->E1_SALDO,"SE1",SE1->E1_BAIXA)
+
+//->> Garantir que não despocionou ao usar a função fa070juros
+SE1->(RestArea(aAreaSE1))
+
+nSaldoTit := SaldoTit(	SE1->E1_PREFIXO,	;
+						SE1->E1_NUM,		;
+						SE1->E1_PARCELA,	;
+						SE1->E1_TIPO,		;
+						SE1->E1_NATUREZA,	;
+						"R",				;
+						SE1->E1_CLIENTE,	;
+						SE1->E1_MOEDA,		;
+						SE1->E1_VENCREA,	;
+						SE1->E1_VENCREA,	;
+						SE1->E1_LOJA,		;
+						,					;
+						SE1->E1_TXMOEDA		)
+
+//->> Garantir que não despocionou ao usar a função saldotit
+SE1->(RestArea(aAreaSE1))
+
+nSaldoTit += ( SE1->E1_ACRESC - SE1->E1_DECRESC )
+nSaldoTit -= (aValImps[5]+aValImps[3]+aValImps[4]+aValImps[7]+aValImps[2]+aValImps[6])
+nSaldoTit += nJuros
+nSaldoTit -= _nVlrAbat
+
+nDesconto  := FaDescFin("SE1",dDatabase,nSaldoTit,1)
+
+//->> Garantir que não despocionou ao usar a função dadescfin
+SE1->(RestArea(aAreaSE1))
+
+nSaldoTit  -= nDesconto
+
+//->>Marcelo Celi - 14/10/2022
+/*/
+_nDescFin := Round(SE1->E1_SALDO * (SE1->E1_DESCFIN/100),2)
+_nVlrBolet := (SE1->E1_SALDO - _nVlrAbat + SE1->E1_ACRESC - SE1->E1_DECRESC - _nDescFin)
+
 _dVncBolet := SE1->E1_VENCTO
 _nVlrBolet := _nVlrBolet - (aValImps[5]+aValImps[3]+aValImps[4]+aValImps[7]+aValImps[2]+aValImps[6])
+/*/
+
+_nVlrBolet := nSaldoTit
+_dVncBolet := SE1->E1_VENCTO
+_nDescFin  := nDesconto
 
 Return {_nVlrBolet,_nVlrAbat,_dVncBolet,_nDescFin}
 
