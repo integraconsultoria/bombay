@@ -1197,6 +1197,9 @@ Local cCpo      := Upper(Alltrim(ReadVar()))
 //->> Marcelo Celi - 22/01/2021
 Local lTudoOk   := .F.
 
+//->> Marcelo Celi - 06/01/2023
+Local lUsaBkOrd := Alltrim(Upper(GetNewPar("BO_BKORDPV","S")))=="S" 
+
 Default lMsg := .T.
 
 If Funname()=="MATA410"
@@ -1222,8 +1225,12 @@ ElseIf Funname()=="MATA415"
         Default cProduto := ""
     EndIf
 
-    //->> Marcelo Celi - 22/01/2021
-    lTudoOk := .F.
+    //->> Marcelo Celi - 06/01/2023
+    If lUsaBkOrd
+        lTudoOk := .T.
+    Else
+        lTudoOk := .F.
+    EndIf
 
 Else
     cProduto := ""
