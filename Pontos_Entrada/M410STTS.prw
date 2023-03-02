@@ -19,6 +19,9 @@ Local cFilRegr  := GetNewPar("BO_FILREGV","0101")
 //->> Marcelo Celi - 13/01/2021
 Local lBrq      := cFilAnt $ cFilRegr 
 
+//->> Marcelo Celi - 06/01/2023
+Local lUsaBkOrd := Alltrim(Upper(GetNewPar("BO_BKORDPV","S")))=="S" 
+
 //->> Marcelo Celi - 23/02/2022
 If SC5->(FieldPos("C5_XORIGEM")) > 0 .And. !Empty(SC5->C5_XORIGEM) .And. ;
    SC5->(FieldPos("C5_XIDINTG")) > 0 .And. !Empty(SC5->C5_XIDINTG)
@@ -73,6 +76,23 @@ If nTipo == 3 .Or. nTipo==4 .Or. nTipo==6 // inclusao, alteração ou copia
             EndIf
             SC6->(dbSkip())
         EndDo
+    EndIf
+EndIf
+
+//->>Marcelo Celi - 21/12/2022
+If nTipo == 3
+    If !IsBlind() .And. IsInCallStack("MATA416") .And. lUsaBkOrd
+        If Type("_cBoDetalhe")<>"U" .And. Valtype(_cBoDetalhe)=="C" .And. !Empty(_cBoDetalhe) .And. SC5->(FieldPos("C5_XBKDET"))>0
+            RecLock("SC5",.F.)
+            SC5->C5_XBKDET := _cBoDetalhe
+            SC5->(MsUnlock())
+        EndIf
+
+        If Type("_cBoMotivo")<>"U" .And. Valtype(_cBoMotivo)=="C" .And. !Empty(_cBoMotivo) .And. SC5->(FieldPos("C5_XBKOBS"))>0
+            RecLock("SC5",.F.)
+            SC5->C5_XBKOBS := _cBoMotivo
+            SC5->(MsUnlock())
+        EndIf
     EndIf
 EndIf
 
