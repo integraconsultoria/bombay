@@ -19,4 +19,6 @@ Local aCores := Paramixb
 Public p__cUM  := ""
 Public p__lUM  := .F.
 
+aAdd(aCores,{'SCJ->CJ_STATUS=="Z"','qmt_no'})
+
 Return aCores
